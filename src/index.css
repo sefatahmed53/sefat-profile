@@ -119,6 +119,43 @@ html {
   top: 100%;
 }
 
+.avatar-ring {
+  position: relative;
+  display: inline-flex;
+  border-radius: 9999px;
+  padding: 0.35rem;
+  background: rgba(0, 229, 255, 0.08);
+}
+.avatar-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 229, 255, 0.45);
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.18);
+  animation: ringPulse 4.2s ease-in-out infinite;
+  pointer-events: none;
+}
+.avatar-ring::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 9999px;
+  border: 1px solid rgba(124, 77, 255, 0.28);
+  pointer-events: none;
+}
+
+@keyframes ringPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.35;
+  }
+}
+
 /* Interactive Cursor */
 .custom-cursor {
   width: 24px;
