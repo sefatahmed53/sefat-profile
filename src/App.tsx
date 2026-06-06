@@ -105,6 +105,7 @@ export default function App() {
   const setActiveTab = (tab: string) => {
     setActiveTab2(tab);
     window.location.hash = tab === 'home' ? '' : `#${tab}`;
+    window.scrollTo({ top: 0 });
   };
 
   useEffect(() => {
@@ -112,8 +113,10 @@ export default function App() {
       const hash = window.location.hash.replace('#', '');
       if (['projects', 'experience', 'certifications', 'reviews', 'resume', 'contact'].includes(hash)) {
         setActiveTab2(hash);
+        window.scrollTo({ top: 0 });
       } else {
         setActiveTab2('home');
+        window.scrollTo({ top: 0 });
       }
     };
     window.addEventListener('hashchange', handleHashChange);
@@ -649,7 +652,7 @@ export default function App() {
             {activeTab === 'home' && (
               <>
                 {/* Dynamic Hero with high premium layout */}
-                <Hero profile={profile} />
+                <Hero profile={profile} onTabChange={setActiveTab} />
 
                 {/* 5. DYNAMIC STATS COCOUNTERS BANNER SECTION */}
                 <section className="bg-[#111827]/30 border-y border-zinc-850 py-12 px-4 shadow-xl">

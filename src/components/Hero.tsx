@@ -10,9 +10,10 @@ import { ProfileInfo } from '../types';
 
 interface HeroProps {
   profile: ProfileInfo;
+  onTabChange?: (tab: string) => void;
 }
 
-export default function Hero({ profile }: HeroProps) {
+export default function Hero({ profile, onTabChange }: HeroProps) {
   // Typing Effect
   const roles = [
     "Business Administration Student",
@@ -79,9 +80,15 @@ export default function Hero({ profile }: HeroProps) {
   };
 
   const handleScrollToSection = (id: string) => {
-    const element = document.querySelector(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    const tabName = id.replace('#', '');
+    if (onTabChange) {
+      onTabChange(tabName);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const element = document.querySelector(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
