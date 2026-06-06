@@ -104,10 +104,10 @@ export default function Header({
             onClick={onAdminClick}
             className="relative flex items-center space-x-2 rounded-xl border border-zinc-805 bg-zinc-900/40 px-4 py-2.5 text-xs font-semibold text-[#00E5FF] transition-all hover:bg-zinc-850 hover:text-white hover:border-[#00E5FF]/40 cursor-pointer shadow-md"
             id="desktop-admin-cms-btn"
-            title="Open Content Management System (CMS)"
+            title="Open Admin Portal"
           >
             <Settings2 className="h-4 w-4 text-[#00E5FF]" />
-            <span>CMS Admin Portal</span>
+            <span>Admin Portal</span>
             {unreadSubmissionsCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#7C4DFF] text-[10px] font-bold text-white animate-pulse shadow-lg">
                 {unreadSubmissionsCount}
@@ -182,7 +182,7 @@ export default function Header({
                 id="mobile-admin-cms-btn"
               >
                 <ShieldCheck className="h-4.5 w-4.5" />
-                <span>Open CMS Admin Portal ({unreadSubmissionsCount} new msgs)</span>
+                <span>Open Admin Portal ({unreadSubmissionsCount} new msgs)</span>
               </button>
             </div>
           </motion.div>

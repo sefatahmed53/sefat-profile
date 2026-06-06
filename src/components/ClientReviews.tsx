@@ -112,7 +112,7 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
                       <CheckCircle2 className="h-12 w-12 text-[#00E5FF] mx-auto mb-4 animate-bounce" />
                       <h3 className="text-lg font-display font-extrabold text-white mb-2">Thank you!</h3>
                       <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed font-mono">
-                        Your recommendation was submitted successfully. It will display immediately below after Sefat reviews it in his CMS inbox!
+                        Your recommendation was submitted successfully. It will display immediately below after Sefat reviews it in his Admin inbox!
                       </p>
                     </div>
                   ) : (

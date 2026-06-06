@@ -120,41 +120,9 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   
-  // Custom Cursor mouse coordinates
-  const [coords, setCoords] = useState({ x: -100, y: -100 });
-  const [hoveredEl, setHoveredEl] = useState(false);
-
   // Search & filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-
-  // --- MOUSE TRACKING ---
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setCoords({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'A' || 
-        target.tagName === 'BUTTON' || 
-        target.closest('button') || 
-        target.closest('a')
-      ) {
-        setHoveredEl(true);
-      } else {
-        setHoveredEl(false);
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseover', handleMouseOver);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseover', handleMouseOver);
-    };
-  }, []);
 
   // --- SCROLL WATCHER ---
   useEffect(() => {
@@ -464,30 +432,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-zinc-100 flex flex-col font-sans selection:bg-[#00E5FF] selection:text-black antialiased relative overflow-x-hidden">
       
-      {/* 1. MOUSE FOLLOW GLOW EFFECT (DESKTOP ONLY) */}
-      <div 
-        className="hidden md:block fixed pointer-events-none z-30 transition-all duration-75 ease-out rounded-full -translate-x-1/2 -translate-y-1/2"
-        style={{
-          left: `${coords.x}px`,
-          top: `${coords.y}px`,
-          width: hoveredEl ? '400px' : '280px',
-          height: hoveredEl ? '400px' : '280px',
-          background: hoveredEl 
-            ? 'radial-gradient(circle, rgba(0,229,255,0.06) 0%, rgba(124,77,255,0.02) 50%, transparent 100%)' 
-            : 'radial-gradient(circle, rgba(0,229,255,0.035) 0%, rgba(124,77,255,0.01) 45%, transparent 100%)'
-        }}
-      />
-
-      {/* CUSTOM CURSOR PIN */}
-      <div 
-        className={`hidden md:block custom-cursor ${hoveredEl ? 'w-10 h-10 border-[#7C4DFF] bg-[#00E5FF]/10' : ''}`}
-        style={{ left: `${coords.x}px`, top: `${coords.y}px` }}
-      />
-      <div 
-        className="hidden md:block custom-cursor-dot"
-        style={{ left: `${coords.x}px`, top: `${coords.y}px` }}
-      />
-
       {/* 2. LOADING SCREEN PRELOADER */}
       <AnimatePresence>
         {appLoading && (
@@ -524,13 +468,164 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* 3. FLOATING BACKGROUND GRADIENT BLOBS */}
-      <div className="absolute top-[10%] left-[-10%] w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-[#00E5FF]/5 blur-[120px] pointer-events-none -z-10 animate-float" />
-      <div className="absolute top-[45%] right-[-10%] w-[320px] sm:w-[450px] h-[320px] sm:h-[450px] rounded-full bg-[#7C4DFF]/4 blur-[100px] pointer-events-none -z-10 animate-float-reverse" />
-      <div className="absolute bottom-[15%] left-[20%] w-[400px] h-[400px] rounded-full bg-[#00E5FF]/3 blur-[140px] pointer-events-none -z-10 animate-float" />
+      {/* 3. DYNAMIC AMBIENT BACKGROUND ANIMATOR (TAB-REACTIVE) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-20">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0"
+          >
+            {activeTab === 'home' && (
+              <>
+                {/* Cybernetic Cosmic Orbs */}
+                <motion.div
+                  animate={{ 
+                    x: [0, 40, -20, 0], 
+                    y: [0, -50, 30, 0],
+                    scale: [1, 1.1, 0.9, 1] 
+                  }}
+                  transition={{ repeat: Infinity, duration: 25, ease: 'easeInOut' }}
+                  className="absolute top-[12%] left-[-10%] w-[550px] h-[550px] rounded-full bg-[#00E5FF]/8 blur-[130px]"
+                />
+                <motion.div
+                  animate={{ 
+                    x: [0, -30, 50, 0], 
+                    y: [0, 40, -40, 0],
+                    scale: [1, 0.95, 1.05, 1] 
+                  }}
+                  transition={{ repeat: Infinity, duration: 22, ease: 'easeInOut' }}
+                  className="absolute top-[48%] right-[-10%] w-[480px] h-[480px] rounded-full bg-[#7C4DFF]/6 blur-[110px]"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-[0.06]" />
+              </>
+            )}
 
-      {/* 4. ANIMATED STATIC STARFIELD / PARTICLE BACKFLIP */}
-      <div className="absolute inset-0 bg-[radial-gradient(#111827_1px,transparent_1px)] [background-size:16px_16px] opacity-15 pointer-events-none -z-15" />
+            {activeTab === 'projects' && (
+              <>
+                {/* Cyan Grid Node Arrays */}
+                <div className="absolute inset-0 bg-[radial-gradient(#00E5FF_1px,transparent_1px)] bg-[size:32px_32px] opacity-[0.07]" />
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 360],
+                    scale: [0.9, 1.1, 0.9]
+                  }}
+                  transition={{ repeat: Infinity, duration: 40, ease: 'linear' }}
+                  className="absolute -top-[10%] right-[10%] w-[600px] h-[600px] border border-[#00E5FF]/10 rounded-full flex items-center justify-center blur-sm"
+                >
+                  <div className="w-[450px] h-[450px] border border-[#00E5FF]/5 rounded-full" />
+                  <div className="w-[300px] h-[300px] border border-[#7C4DFF]/5 rounded-full border-dashed" />
+                </motion.div>
+                <div className="absolute top-[30%] left-[5%] w-[400px] h-[400px] rounded-full bg-[#00E5FF]/5 blur-[120px]" />
+              </>
+            )}
+
+            {activeTab === 'experience' && (
+              <>
+                {/* Moving Laser Stream lines */}
+                <div className="absolute inset-0 bg-[linear-gradient(0deg,transparent_24%,#18181b_25%,#18181b_26%,transparent_27%,transparent_74%,#18181b_75%,#18181b_76%,transparent_77%)] bg-[size:50px_50px] opacity-10" />
+                <div className="absolute top-[20%] left-[10%] right-[10%] h-[350px] bg-gradient-to-r from-purple-500/5 via-cyan-500/5 to-transparent blur-[80px]" />
+                <motion.div
+                  animate={{ y: [-100, 1000] }}
+                  transition={{ repeat: Infinity, duration: 8, ease: 'linear' }}
+                  className="absolute left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#00E5FF]/15 to-transparent shadow-[0_0_15px_rgba(0,229,255,0.4)]"
+                />
+                <motion.div
+                  animate={{ y: [1000, -100] }}
+                  transition={{ repeat: Infinity, duration: 12, ease: 'linear' }}
+                  className="absolute left-1/3 right-1/3 h-[1.5px] bg-gradient-to-r from-transparent via-[#7C4DFF]/15 to-transparent shadow-[0_0_15px_rgba(124,77,255,0.4)]"
+                />
+              </>
+            )}
+
+            {activeTab === 'certifications' && (
+              <>
+                {/* Golden/Indigo radiant glowing waves */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.02)_0%,transparent_70%)]" />
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    opacity: [0.3, 0.6, 0.3]
+                  }}
+                  transition={{ repeat: Infinity, duration: 15, ease: 'easeInOut' }}
+                  className="absolute top-[25%] left-1/2 -translate-x-1/2 w-[550px] h-[550px] rounded-full bg-yellow-500/[0.03] blur-[150px]"
+                />
+                <motion.div
+                  animate={{ 
+                    scale: [1.2, 1, 1.2],
+                    opacity: [0.4, 0.8, 0.4]
+                  }}
+                  transition={{ repeat: Infinity, duration: 18, ease: 'easeInOut' }}
+                  className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-purple-500/[0.04] blur-[120px]"
+                />
+              </>
+            )}
+
+            {activeTab === 'reviews' && (
+              <>
+                {/* Speech heartbeat pulse ripples */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#111827_1px,transparent_1px)] bg-[size:24px_24px] opacity-20" />
+                <div className="absolute top-[30%] left-1/2 -translate-x-1/2 flex items-center justify-center">
+                  <motion.div
+                    animate={{ 
+                      scale: [0.8, 1.8],
+                      opacity: [0.5, 0]
+                    }}
+                    transition={{ repeat: Infinity, duration: 4, ease: 'easeOut' }}
+                    className="absolute w-[300px] h-[300px] border border-[#7C4DFF]/10 rounded-full animate-pulse"
+                  />
+                  <motion.div
+                    animate={{ 
+                      scale: [0.8, 1.8],
+                      opacity: [0.4, 0]
+                    }}
+                    transition={{ repeat: Infinity, duration: 4, delay: 2, ease: 'easeOut' }}
+                    className="absolute w-[300px] h-[300px] border border-[#00E5FF]/10 rounded-full animate-pulse"
+                  />
+                </div>
+                <div className="absolute top-[10%] right-[10%] w-[350px] h-[350px] rounded-full bg-[#7C4DFF]/4 blur-[100px]" />
+                <div className="absolute bottom-[20%] left-[10%] w-[350px] h-[350px] rounded-full bg-[#00E5FF]/4 blur-[100px]" />
+              </>
+            )}
+
+            {activeTab === 'resume' && (
+              <>
+                {/* Blueprint drafting markers & alignment lines */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#111827_1px,transparent_1px),linear-gradient(to_bottom,#111827_1px,transparent_1px)] bg-[size:100px_100px] opacity-40" />
+                <div className="absolute top-[10%] left-1/4 w-[1px] h-full bg-zinc-900" />
+                <div className="absolute top-[10%] right-1/4 w-[1px] h-full bg-zinc-900" />
+                <div className="absolute top-[150px] left-0 right-0 h-[1px] bg-zinc-900" />
+                <div className="absolute top-[400px] left-0 right-0 h-[1px] bg-zinc-900" />
+                <div className="absolute top-[25%] left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-zinc-800/[0.02] border border-zinc-900 blur-[2px]" />
+              </>
+            )}
+
+            {activeTab === 'contact' && (
+              <>
+                {/* Pulsing signal radars */}
+                <div className="absolute inset-0 bg-[radial-gradient(#111827_2px,transparent_2px)] bg-[size:20px_20px] opacity-25" />
+                <div className="absolute bottom-[-10%] left-1/2 -translate-x-1/2">
+                  {[1, 2, 3].map((ring) => (
+                    <motion.div
+                      key={ring}
+                      animate={{ 
+                        scale: [0.5, 3],
+                        opacity: [0.4, 0]
+                      }}
+                      transition={{ repeat: Infinity, duration: 6, delay: (ring - 1) * 2, ease: 'easeOut' }}
+                      className="absolute w-[400px] h-[400px] rounded-full border border-[#00E5FF]/10 -translate-x-1/2 -translate-y-1/2"
+                    />
+                  ))}
+                </div>
+                <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[450px] h-[450px] rounded-full bg-[#00E5FF]/4 blur-[110px]" />
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       {/* App Header Navigation */}
       <Header
@@ -759,7 +854,7 @@ export default function App() {
             className="inline-flex items-center space-x-1 hover:text-[#00E5FF] font-mono font-medium transition-colors cursor-pointer border border-[#00E5FF]/20 px-3 py-1.5 rounded-lg bg-[#111827]"
           >
             <ShieldCheck className="h-4 w-4 text-[#00E5FF]" />
-            <span>Launch CMS Security Portal</span>
+            <span>Launch Security Portal</span>
           </button>
         </div>
       </footer>

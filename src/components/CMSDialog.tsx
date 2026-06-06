@@ -176,18 +176,11 @@ export default function CMSDialog({
               <div className="space-y-2.5">
                 <button
                   type="button"
-                  onClick={handleGoogleSignIn}
-                  className="w-full flex items-center justify-center space-x-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 px-4 py-2.5 text-xs font-semibold text-white transition-all border border-zinc-800 cursor-pointer"
-                >
-                  <span>Switch Administrator Account</span>
-                </button>
-                <button
-                  type="button"
                   onClick={handleSignOut}
                   className="w-full flex items-center justify-center space-x-2 rounded-xl border border-red-500/20 bg-red-950/20 text-red-400 hover:bg-red-950/40 px-4 py-2.5 text-xs font-semibold transition-all cursor-pointer"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>Disconnect Credentials</span>
+                  <span>Log Out & Change Account</span>
                 </button>
               </div>
             )}
@@ -388,7 +381,7 @@ export default function CMSDialog({
         <div className="border-b border-zinc-800 bg-zinc-950 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Award className="h-5 w-5 text-indigo-400" />
-            <h2 className="text-lg font-bold text-white tracking-tight">Portfolio Content Control Center (CMS)</h2>
+            <h2 className="text-lg font-bold text-white tracking-tight">Portfolio Control Center</h2>
             <span className="text-[10px] font-mono bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 uppercase font-semibold">Active Mode</span>
           </div>
 
