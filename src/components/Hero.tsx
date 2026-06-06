@@ -113,12 +113,22 @@ export default function Hero({ profile, onTabChange }: HeroProps) {
           </span>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="mx-auto mb-10 flex flex-col items-center gap-4">
-          <img
-            src={profile.avatarUrl}
-            alt={`${profile.name} avatar`}
-            className="h-36 w-36 rounded-full border-4 border-[#00E5FF]/20 object-cover shadow-[0_25px_60px_rgba(0,229,255,0.15)]"
-          />
+        <motion.div variants={itemVariants} className="mx-auto mb-10 flex items-center justify-center">
+          {/* Showcase image: uses first slide if available, otherwise avatarUrl */}
+          {(() => {
+            const imgSrc = profile.photoSlides && profile.photoSlides.length > 0 ? profile.photoSlides[0] : profile.avatarUrl;
+            return (
+              <motion.img
+                key={imgSrc}
+                src={imgSrc}
+                alt={`${profile.name} showcase`}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+                className="w-full max-w-[720px] h-[240px] sm:h-[360px] md:h-[420px] rounded-2xl border-2 border-[#00E5FF]/10 object-cover shadow-[0_25px_60px_rgba(0,229,255,0.12)] transition-shadow duration-500"
+              />
+            );
+          })()}
         </motion.div>
 
         <motion.h1
