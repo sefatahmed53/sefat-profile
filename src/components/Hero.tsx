@@ -92,6 +92,19 @@ export default function Hero({ profile, onTabChange }: HeroProps) {
     }
   };
 
+  // Slideshow state
+  const slides = profile.photoSlides || [];
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (!slides || slides.length <= 1) return;
+    const interval = setInterval(() => {
+      if (!isPaused) setSlideIdx((s) => (s + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [slides, isPaused]);
+
 
   return (
     <section className="relative flex min-h-[92vh] items-center justify-center overflow-hidden bg-[#0A0A0A] px-4 pt-10 sm:px-6 lg:px-8" id="hero-section">
@@ -163,6 +176,41 @@ export default function Hero({ profile, onTabChange }: HeroProps) {
         >
           {profile.bio}
         </motion.p>
+
+        {/* Slideshow (optional) */}
+        {slides && slides.length > 0 && (
+          <motion.div
+            variants={itemVariants}
+            className="mx-auto mt-8 w-full max-w-[880px] relative rounded-2xl overflow-hidden"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            {slides.map((src, i) => (
+              <motion.img
+                key={src + i}
+                src={src}
+                alt={`slide-${i}`}
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={i === slideIdx ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
+                className="absolute inset-0 w-full h-[220px] sm:h-[320px] md:h-[420px] object-cover"
+                style={{ willChange: 'opacity, transform' }}
+              />
+            ))}
+
+            {/* Indicators */}
+            <div className="absolute left-1/2 bottom-3 flex -translate-x-1/2 gap-2">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSlideIdx(i)}
+                  className={`h-2 w-8 rounded-full transition-all duration-300 ${i === slideIdx ? 'bg-[#00E5FF]' : 'bg-white/30'}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Quick Social & Google Site links row */}
         <motion.div variants={itemVariants} className="mt-8 flex flex-wrap justify-center items-center gap-6 text-xs font-mono text-zinc-500">
