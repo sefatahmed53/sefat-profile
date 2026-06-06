@@ -95,6 +95,30 @@ export default function App() {
   const [isCMSOpen, setIsCMSOpen] = useState(false);
   const [appLoading, setAppLoading] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Active page state corresponding to header links or home overview
+  const [activeTab, setActiveTab2] = useState<string>(() => {
+    const hash = window.location.hash.replace('#', '');
+    return ['projects', 'experience', 'certifications', 'reviews', 'resume', 'contact'].includes(hash) ? hash : 'home';
+  });
+
+  const setActiveTab = (tab: string) => {
+    setActiveTab2(tab);
+    window.location.hash = tab === 'home' ? '' : `#${tab}`;
+  };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (['projects', 'experience', 'certifications', 'reviews', 'resume', 'contact'].includes(hash)) {
+        setActiveTab2(hash);
+      } else {
+        setActiveTab2('home');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
   
   // Custom Cursor mouse coordinates
   const [coords, setCoords] = useState({ x: -100, y: -100 });
@@ -513,128 +537,200 @@ export default function App() {
         profile={profile}
         onAdminClick={() => setIsCMSOpen(true)}
         unreadSubmissionsCount={unreadCount}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
       />
 
       {/* Main Container Layout */}
       <main className="flex-grow">
-        
-        {/* Dynamic Hero with high premium layout */}
-        <Hero profile={profile} />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+          >
+            {activeTab === 'home' && (
+              <>
+                {/* Dynamic Hero with high premium layout */}
+                <Hero profile={profile} />
 
-        {/* 5. DYNAMIC STATS COCOUNTERS BANNER SECTION */}
-        <section className="bg-[#111827]/30 border-y border-zinc-850 py-10 px-4">
-          <div className="mx-auto max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: 'Completed Projects', value: projects.length, icon: Layers, desc: 'Digital products built', color: 'text-[#00E5FF]' },
-              { label: 'Professional Certifications', value: certifications.length, icon: Award, desc: 'Illustrator, AI & Analytics', color: 'text-[#7C4DFF]' },
-              { label: 'Freelance & Club Contracts', value: experience.length + 3, icon: Briefcase, desc: 'Successful corporate assets', color: 'text-[#00E5FF]' },
-              { label: 'Verified Client Reviews', value: reviews.filter(r=>r.approved).length, icon: UserCheck, desc: 'Approved testimonials', color: 'text-[#7C4DFF]' }
-            ].map((stat, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="flex items-start space-x-3.5 p-3"
-              >
-                <div className={`p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 ${stat.color}`}>
-                  <stat.icon className="h-5 w-5" />
+                {/* 5. DYNAMIC STATS COCOUNTERS BANNER SECTION */}
+                <section className="bg-[#111827]/30 border-y border-zinc-850 py-12 px-4 shadow-xl">
+                  <div className="mx-auto max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-8">
+                    {[
+                      { label: 'Completed Projects', value: projects.length, icon: Layers, desc: 'Digital products built', color: 'text-[#00E5FF]', action: () => setActiveTab('projects') },
+                      { label: 'Professional Certifications', value: certifications.length, icon: Award, desc: 'Illustrator, AI & Analytics', color: 'text-[#7C4DFF]', action: () => setActiveTab('certifications') },
+                      { label: 'Freelance & Club Contracts', value: experience.length + 3, icon: Briefcase, desc: 'Successful corporate assets', color: 'text-[#00E5FF]', action: () => setActiveTab('experience') },
+                      { label: 'Verified Client Reviews', value: reviews.filter(r=>r.approved).length, icon: UserCheck, desc: 'Approved testimonials', color: 'text-[#7C4DFF]', action: () => setActiveTab('reviews') }
+                    ].map((stat, i) => (
+                      <motion.div 
+                        key={i}
+                        initial={{ opacity: 0, y: 15 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: i * 0.1 }}
+                        className="flex items-start space-x-3.5 p-4 rounded-2xl bg-[#111827]/40 border border-zinc-800/40 hover:border-[#00E5FF]/20 cursor-pointer hover:bg-[#111827]/60 transition-all duration-300 group"
+                        onClick={stat.action}
+                      >
+                        <div className={`p-2.5 rounded-xl bg-zinc-900 border border-zinc-805 group-hover:border-[#00E5FF]/30 transition-all ${stat.color}`}>
+                          <stat.icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-3xl font-display font-extrabold text-white tracking-tight flex items-center">
+                            <span>{stat.value}</span>
+                            <span className="text-[#00E5FF] text-xl ml-0.5">+</span>
+                          </h4>
+                          <p className="text-xs font-semibold text-zinc-350 mt-0.5">{stat.label}</p>
+                          <p className="text-[10px] font-mono text-zinc-500">{stat.desc}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* FEATURED INSIGHT SECTION */}
+                <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-12 items-center bg-[#111827]/10 border border-zinc-800/40 rounded-3xl p-8 sm:p-12 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-[#00E5FF]/5 rounded-full blur-3xl -z-10" />
+                    <div>
+                      <span className="text-xs font-mono font-bold tracking-widest text-[#00E5FF] uppercase">About Md. Sakir Ahmed Sefat</span>
+                      <h2 className="text-3xl font-display font-extrabold tracking-tight text-white mt-1.5 leading-tight">
+                        Pioneering Advanced Business Automation & Finance Automation
+                      </h2>
+                      <p className="text-sm text-zinc-400 mt-4 leading-relaxed">
+                        With a specialization in corporate BBA Fintech/Finance and seasoned hands-on experience in business orchestration, Md. Sakir designs high-end portfolio solutions. From modern corporate sites to robust ledger reconciliations and analytics portfolios, each venture represents clean, scalable code and beautiful responsive craftsmanship.
+                      </p>
+                      <div className="mt-8 flex flex-wrap gap-4">
+                        <button
+                          onClick={() => setActiveTab('projects')}
+                          className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#00E5FF] to-[#7C4DFF] hover:brightness-110 text-xs font-bold uppercase tracking-wider text-black transition-all cursor-pointer"
+                        >
+                          Explore Projects
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('contact')}
+                          className="px-5 py-3 rounded-xl border border-zinc-700 hover:border-[#00E5FF]/30 text-xs font-bold uppercase tracking-wider text-white transition-all cursor-pointer bg-[#111827]/45"
+                        >
+                          Initiate Conversation
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { title: 'Data Analytics', text: 'Proficient in financial modeling, pivot spreadsheets & corporate spreadsheets.', icon: '📊' },
+                        { title: 'Brand Identity', text: 'Expert Adobe Illustrator designer and developer of rich business identities.', icon: '🎨' },
+                        { title: 'Automation Labs', text: 'Integrating automated newsletters, workflow systems & smart web portals.', icon: '⚡' },
+                        { title: 'Security First', text: 'Implementing secure role-based portals and private communication grids.', icon: '🛡️' }
+                      ].map((card, i) => (
+                        <div key={i} className="p-5 rounded-2xl bg-zinc-950/40 border border-zinc-900 flex flex-col justify-between hover:border-zinc-800 transition-colors">
+                          <span className="text-3xl">{card.icon}</span>
+                          <div className="mt-4">
+                            <h5 className="text-xs font-bold uppercase text-white tracking-wider">{card.title}</h5>
+                            <p className="text-[11px] text-zinc-500 mt-1 leading-relaxed">{card.text}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+
+            {activeTab === 'projects' && (
+              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16" id="projects">
+                <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-800/80 pb-5 mb-8 gap-4">
+                  <div>
+                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#00E5FF] flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      <span>Showcased Ventures</span>
+                    </span>
+                    <h2 className="text-3xl font-display font-extrabold text-white tracking-tight mt-1">
+                      Dynamic Portfolios
+                    </h2>
+                  </div>
+
+                  {/* Filter and search utilities */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    {/* Search */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                      <input 
+                        type="text" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Query projects or tags..."
+                        className="bg-[#111827] border border-zinc-800 rounded-lg pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-all w-full sm:w-52"
+                      />
+                    </div>
+
+                    {/* Category pill selects */}
+                    <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
+                      {['All', 'UI/UX', 'Web Design', 'Brand Identity'].map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => setSelectedCategory(cat)}
+                          className={`px-3 py-1.5 rounded-md text-[11px] font-mono font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                            selectedCategory === cat 
+                              ? 'bg-[#00E5FF] text-black font-bold' 
+                              : 'bg-[#111827] text-zinc-400 hover:text-white border border-zinc-800'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-3xl font-display font-extrabold text-white tracking-tight flex items-center">
-                    <span>{stat.value}</span>
-                    <span className="text-[#00E5FF] text-xl ml-0.5">+</span>
-                  </h4>
-                  <p className="text-xs font-semibold text-zinc-300 mt-0.5">{stat.label}</p>
-                  <p className="text-[10px] font-mono text-zinc-500">{stat.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
 
-        {/* 6. ADVANCED PROJECT FILTERING & SEARCH INTERFACES */}
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-20" id="projects">
-          <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-800 pb-5 mb-8 gap-4">
-            <div>
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#00E5FF] flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                <span>Showcased Ventures</span>
-              </span>
-              <h2 className="text-3xl font-display font-extrabold text-white tracking-tight mt-1">
-                Dynamic Portfolios
-              </h2>
-            </div>
-
-            {/* Filter and search utilities */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Query projects or tags..."
-                  className="bg-[#111827] border border-zinc-800 rounded-lg pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-all w-full sm:w-52"
-                />
+                {/* Render projects with filtering bounds applied */}
+                <Projects projects={filteredProjects} />
+                {filteredProjects.length === 0 && (
+                  <div className="text-center py-20 bg-[#111827]/40 border border-zinc-805 rounded-xl">
+                    <p className="text-sm font-semibold text-zinc-400">No projects match your current filter parameters or query.</p>
+                    <button 
+                      onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+                      className="mt-3 text-xs text-[#00E5FF] hover:underline cursor-pointer"
+                    >
+                      Clear all active search filters
+                    </button>
+                  </div>
+                )}
               </div>
+            )}
 
-              {/* Category pill selects */}
-              <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
-                {['All', 'UI/UX', 'Web Design', 'Brand Identity'].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1.5 rounded-md text-[11px] font-mono font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                      selectedCategory === cat 
-                        ? 'bg-[#00E5FF] text-black font-bold' 
-                        : 'bg-[#111827] text-zinc-400 hover:text-white border border-zinc-800'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+            {activeTab === 'experience' && (
+              <Experience experience={experience} />
+            )}
 
-          {/* Render projects with filtering bounds applied */}
-          <Projects projects={filteredProjects} />
-          {filteredProjects.length === 0 && (
-            <div className="text-center py-20 bg-[#111827]/40 border border-zinc-800 rounded-xl">
-              <p className="text-sm font-semibold text-zinc-400">No projects match your current filter parameters or query.</p>
-              <button 
-                onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
-                className="mt-3 text-xs text-[#00E5FF] hover:underline cursor-pointer"
-              >
-                Clear all active search filters
-              </button>
-            </div>
-          )}
-        </div>
+            {activeTab === 'certifications' && (
+              <Certifications certifications={certifications} />
+            )}
 
-        <Experience experience={experience} />
+            {activeTab === 'reviews' && (
+              <ClientReviews
+                reviews={reviews}
+                onSubmitReview={handleReviewSubmit}
+              />
+            )}
 
-        <Certifications certifications={certifications} />
+            {activeTab === 'resume' && (
+              <Resume
+                profile={profile}
+                experience={experience}
+                projects={projects}
+              />
+            )}
 
-        {/* Reviews Testimonials & Submit Section */}
-        <ClientReviews
-          reviews={reviews}
-          onSubmitReview={handleReviewSubmit}
-        />
-
-        <Resume
-          profile={profile}
-          experience={experience}
-          projects={projects}
-        />
-
-        <ContactForm
-          profile={profile}
-          onContactSubmit={handleContactSubmit}
-        />
+            {activeTab === 'contact' && (
+              <ContactForm
+                profile={profile}
+                onContactSubmit={handleContactSubmit}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Footer Details */}
