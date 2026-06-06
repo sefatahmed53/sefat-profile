@@ -1,0 +1,6 @@
+{
+  "name": "Portfolio and CMS",
+  "description": "Sefat Ahmed design portfolio, dynamic client reviews manager, contact submissions tracker, print-friendly downloadable PDF resume, and complete certifications CMS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
