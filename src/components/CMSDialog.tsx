@@ -30,7 +30,7 @@ import {
   Key,
   Info
 } from 'lucide-react';
-import { User as FirebaseUser, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { User as FirebaseUser, signOut, signInWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebase';
 import {
   ProfileInfo,
@@ -111,7 +111,6 @@ export default function CMSDialog({
   const [adminPassword, setAdminPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>('sign-in');
   const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -121,7 +120,6 @@ export default function CMSDialog({
 
   const handleShowLogin = () => {
     setVerificationEmail(null);
-    setAuthMode('sign-in');
     setLoginError(null);
     setAdminPassword('');
   };
@@ -161,10 +159,7 @@ export default function CMSDialog({
 
     setIsSubmitting(true);
     try {
-      const credential = authMode === 'sign-in'
-        ? await signInWithEmailAndPassword(auth, adminEmail.trim(), adminPassword)
-        : await createUserWithEmailAndPassword(auth, adminEmail.trim(), adminPassword);
-
+      const credential = await signInWithEmailAndPassword(auth, adminEmail.trim(), adminPassword);
       const user = credential.user;
       if (user && !user.emailVerified) {
         await sendEmailVerification(user);
@@ -174,28 +169,11 @@ export default function CMSDialog({
       }
     } catch (err: any) {
       console.error('Authentication error:', err);
-      let errorMsg = 'Failed to authenticate.';
-      if (authMode === 'sign-in') {
-        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-          errorMsg = 'Email or password is incorrect';
-        } else if (err.code === 'auth/invalid-email') {
-          errorMsg = 'Invalid email format.';
-        } else if (err.code === 'auth/network-request-failed') {
-          errorMsg = 'Network request failed. Please try again.';
-        }
-      } else {
-        if (err.code === 'auth/email-already-in-use') {
-          errorMsg = 'User already exists. Please sign in';
-        } else if (err.code === 'auth/invalid-email') {
-          errorMsg = 'Invalid email format.';
-        } else if (err.code === 'auth/weak-password') {
-          errorMsg = 'Password must be at least 6 characters long.';
-        } else if (err.code === 'auth/network-request-failed') {
-          errorMsg = 'Network request failed. Please try again.';
-        }
-      }
-      if (!errorMsg || errorMsg === 'Failed to authenticate.') {
-        errorMsg = err.message || 'Email or password is incorrect';
+      let errorMsg = 'Email or password is incorrect';
+      if (err.code === 'auth/invalid-email') {
+        errorMsg = 'Invalid email format.';
+      } else if (err.code === 'auth/network-request-failed') {
+        errorMsg = 'Network request failed. Please try again.';
       }
       setLoginError(errorMsg);
     } finally {
@@ -299,24 +277,7 @@ export default function CMSDialog({
               )}
 
               {/* Email Field */}
-<div className="flex justify-center gap-2 text-[10px] font-mono uppercase tracking-wider">
-                  <button
-                    type="button"
-                    onClick={() => setAuthMode('sign-in')}
-                    className={`rounded-full px-4 py-2 transition-all ${authMode === 'sign-in' ? 'bg-[#00E5FF] text-black' : 'bg-zinc-950 text-zinc-400 hover:bg-zinc-900'}`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAuthMode('sign-up')}
-                    className={`rounded-full px-4 py-2 transition-all ${authMode === 'sign-up' ? 'bg-[#00E5FF] text-black' : 'bg-zinc-950 text-zinc-400 hover:bg-zinc-900'}`}
-                  >
-                    Sign Up
-                  </button>
-                </div>
-
-                <div className="space-y-1">
+              <div className="space-y-1">
                   <label className="text-[10px] font-mono uppercase font-bold tracking-wider text-zinc-500 block">
                     USER EMAIL
                 </label>
@@ -359,39 +320,6 @@ export default function CMSDialog({
               </div>
 
               {/* Password Requirements Checklist */}
-              <div className="p-3 bg-zinc-950/60 rounded-xl border border-zinc-900 space-y-2 text-zinc-400">
-                <div className="text-[10px] font-mono uppercase font-bold text-zinc-500 tracking-wider flex items-center gap-1.5">
-                  <Info className="h-3.5 w-3.5 text-[#00E5FF]" />
-                  <span>Validation Invariants</span>
-                </div>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px] font-mono">
-                  <div className="flex items-center space-x-1.5">
-                    <div className={`h-3.5 w-3.5 rounded-full flex items-center justify-center border ${adminPassword.length >= 6 ? 'border-green-500/30 bg-green-950/20 text-green-400' : 'border-zinc-800 bg-zinc-900 text-zinc-650'}`}>
-                      <Check className="h-2 w-2" />
-                    </div>
-                    <span className={adminPassword.length >= 6 ? 'text-zinc-300' : 'text-zinc-500'}>Min 6 Chars</span>
-                  </div>
-                  <div className="flex items-center space-x-1.5">
-                    <div className={`h-3.5 w-3.5 rounded-full flex items-center justify-center border ${/\d/.test(adminPassword) ? 'border-green-500/30 bg-green-950/20 text-green-400' : 'border-zinc-800 bg-zinc-900 text-zinc-650'}`}>
-                      <Check className="h-2 w-2" />
-                    </div>
-                    <span className={/\d/.test(adminPassword) ? 'text-zinc-300' : 'text-zinc-500'}>Has 1+ Number</span>
-                  </div>
-                  <div className="flex items-center space-x-1.5">
-                    <div className={`h-3.5 w-3.5 rounded-full flex items-center justify-center border ${(/[a-z]/.test(adminPassword) && /[A-Z]/.test(adminPassword)) ? 'border-green-500/30 bg-green-950/20 text-green-400' : 'border-zinc-800 bg-zinc-900 text-zinc-650'}`}>
-                      <Check className="h-2 w-2" />
-                    </div>
-                    <span className={(/[a-z]/.test(adminPassword) && /[A-Z]/.test(adminPassword)) ? 'text-zinc-300' : 'text-zinc-500'}>Mixed Case</span>
-                  </div>
-                  <div className="flex items-center space-x-1.5">
-                    <div className={`h-3.5 w-3.5 rounded-full flex items-center justify-center border ${/[^a-zA-Z0-9]/.test(adminPassword) ? 'border-green-500/30 bg-green-950/20 text-green-400' : 'border-zinc-800 bg-zinc-900 text-zinc-650'}`}>
-                      <Check className="h-2 w-2" />
-                    </div>
-                    <span className={/[^a-zA-Z0-9]/.test(adminPassword) ? 'text-zinc-300' : 'text-zinc-500'}>Special Char</span>
-                  </div>
-                </div>
-              </div>
-
               {/* Submit Buttons */}
               <button
                 type="submit"
@@ -399,23 +327,8 @@ export default function CMSDialog({
                 className="w-full flex items-center justify-center space-x-2 rounded-xl bg-[#00E5FF] hover:brightness-110 disabled:opacity-50 text-black font-semibold text-xs py-2.5 transition-all shadow-[0_0_15px_rgba(0,229,255,0.25)] cursor-pointer"
               >
                 <Lock className="h-4 w-4" />
-                <span>{isSubmitting ? 'Authenticating...' : authMode === 'sign-in' ? 'Sign In' : 'Create Account'}</span>
+                <span>{isSubmitting ? 'Authenticating...' : 'Login'}</span>
               </button>
-
-              <div className="text-[11px] text-zinc-400 font-mono mt-3 text-center">
-                {authMode === 'sign-in'
-                  ? 'Use email and password to log in. If you do not have an account, switch to Sign Up.'
-                  : 'Create a new account with email and password. If the email already exists, sign in instead.'}
-              </div>
-
-              <div className="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/10 text-[10px] space-y-1 text-zinc-500 leading-relaxed">
-                <span className="font-bold text-indigo-400 block font-mono">Firebase Console Setup:</span>
-                <p>This links to your <strong className="text-zinc-300">sefat-profile</strong> setup. Ensure you:</p>
-                <ul className="list-disc pl-4 space-y-1 text-zinc-400 font-mono">
-                  <li>Activate <strong className="text-[#00E5FF]">Email/Password</strong> sign-in method in Authentication tab.</li>
-                  <li>Register user <strong className="text-white">sefatahmed53@gmail.com</strong> with a secure password.</li>
-                </ul>
-              </div>
             </form>
           ) : (
             <div className="space-y-4 pt-1">

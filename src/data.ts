@@ -11,7 +11,7 @@ export const INITIAL_PROFILE: ProfileInfo = {
   bio: 'Detail-oriented BBA student majoring in Finance with structural expertise in fintech, business automation, and digital branding. I bridge corporate operations with tech integration, designing optimized ledger systems and streamlined spreadsheet architectures.',
   avatarUrl: '/src/assets/images/sefat_avatar_1780743117841.png',
   email: 'sefatahmed53@gmail.com',
-  phone: '+8801712345678',
+  phone: '+8801625732526',
   githubUrl: 'https://github.com',
   linkedinUrl: 'https://linkedin.com',
   behanceUrl: 'https://behance.net',

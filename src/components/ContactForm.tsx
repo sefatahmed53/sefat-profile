@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Send, Mail, MapPin, Globe, CheckCircle2, User, ArrowUpRight, HelpCircle } from 'lucide-react';
+import { Send, Mail, MapPin, Globe, CheckCircle2, User, ArrowUpRight, HelpCircle, Phone } from 'lucide-react';
 import { ProfileInfo, ContactSubmission } from '../types';
 
 interface ContactFormProps {
@@ -91,6 +91,12 @@ export default function ContactForm({ profile, onContactSubmit }: ContactFormPro
                   <Mail className="h-4.5 w-4.5 text-[#00E5FF]" />
                   <a href={`mailto:${profile.email}`} className="text-zinc-300 hover:text-white transition-colors">
                     {profile.email}
+                  </a>
+                </div>
+                <div className="flex items-center space-x-3.5">
+                  <Phone className="h-4.5 w-4.5 text-[#00E5FF]" />
+                  <a href={`tel:${profile.phone}`} className="text-zinc-300 hover:text-white transition-colors">
+                    {profile.phone}
                   </a>
                 </div>
                 <div className="flex items-center space-x-3.5">
