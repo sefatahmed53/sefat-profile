@@ -279,16 +279,15 @@ export default function CMSDialog({
               {/* Email Field */}
               <div className="space-y-1">
                   <label className="text-[10px] font-mono uppercase font-bold tracking-wider text-zinc-500 block">
-                    USER EMAIL
+                    USER
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-3 h-4 w-4 text-zinc-500" />
                   <input
                     type="email"
                     value={adminEmail}
                     onChange={(e) => setAdminEmail(e.target.value)}
-                    placeholder="e.g. sefatahmed53@gmail.com"
-                    className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#00E5FF]/40 pl-10 pr-4 py-2.5 rounded-xl text-xs text-white placeholder-zinc-700 transition-all outline-none"
+                    placeholder="Enter user login"
+                    className="w-full bg-zinc-950 border border-zinc-850 focus:border-[#00E5FF]/40 pl-4 pr-4 py-2.5 rounded-xl text-xs text-white placeholder-zinc-700 transition-all outline-none"
                     required
                   />
                 </div>

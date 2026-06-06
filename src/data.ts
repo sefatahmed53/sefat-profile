@@ -17,6 +17,11 @@ export const INITIAL_PROFILE: ProfileInfo = {
   behanceUrl: 'https://behance.net',
   googleSiteUrl: 'sites.google.com/diu.edu.bd/sefat1',
   availability: 'Available',
+  photoSlides: [
+    '/src/assets/images/sefat_avatar_1780743117841.png',
+    '/src/assets/images/sefat_desk_1780743137973.png',
+    '/src/assets/images/sefat_standing_1780743155434.png',
+  ],
 };
 
 export const INITIAL_PROJECTS: Project[] = [

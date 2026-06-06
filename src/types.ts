@@ -15,6 +15,7 @@ export interface ProfileInfo {
   behanceUrl: string;
   googleSiteUrl: string;
   availability: 'Available' | 'Fully Booked' | 'Part-time';
+  photoSlides?: string[];
 }
 
 export interface Project {
