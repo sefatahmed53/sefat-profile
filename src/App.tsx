@@ -96,6 +96,7 @@ export default function App() {
   const [isCMSOpen, setIsCMSOpen] = useState(false);
   const [appLoading, setAppLoading] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Active page state corresponding to header links or home overview
   const [activeTab, setActiveTab2] = useState<string>(() => {
@@ -123,6 +124,16 @@ export default function App() {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+
+  // Theme toggle effect
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.removeAttribute('data-light-mode');
+    } else {
+      document.documentElement.setAttribute('data-light-mode', 'true');
+    }
+  }, [isDarkMode]);
+  
   
   // Search & filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -638,6 +649,8 @@ export default function App() {
         unreadSubmissionsCount={unreadCount}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
       />
 
       {/* Main Container Layout */}
@@ -853,15 +866,29 @@ export default function App() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl mt-8 pt-8 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between text-[11px] text-zinc-600 gap-4 px-4">
-          <p>© {new Date().getFullYear()} Md. Sakir Ahmed Sefat. All rights reserved.</p>
-          <button
-            onClick={() => setIsCMSOpen(true)}
-            className="inline-flex items-center space-x-1 hover:text-[#00E5FF] font-mono font-medium transition-colors cursor-pointer border border-[#00E5FF]/20 px-3 py-1.5 rounded-lg bg-[#111827]"
-          >
-            <ShieldCheck className="h-4 w-4 text-[#00E5FF]" />
-            <span>Launch Security Portal</span>
-          </button>
+        <div className="mx-auto max-w-7xl mt-8 pt-8 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
+          <p className="text-[11px] text-zinc-600">© {new Date().getFullYear()} Md. Sakir Ahmed Sefat. All rights reserved.</p>
+          <div className="flex items-center gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg border border-zinc-700 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white font-mono text-xs font-medium transition-all"
+              title="Toggle reading mode"
+            >
+              <span>{isDarkMode ? '☀️ Reading' : '🌙 Dark'}</span>
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsCMSOpen(true)}
+              className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg border border-[#00E5FF]/40 bg-gradient-to-r from-[#00E5FF]/10 to-[#7C4DFF]/10 hover:from-[#00E5FF]/20 hover:to-[#7C4DFF]/20 text-[#00E5FF] hover:text-white font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(0,229,255,0.1)] hover:shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+              title="Launch Security Portal"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Launch Security Portal</span>
+            </motion.button>
+          </div>
         </div>
       </footer>
 

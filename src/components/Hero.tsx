@@ -127,15 +127,15 @@ export default function Hero({ profile, onTabChange }: HeroProps) {
         </motion.div>
 
         <motion.div variants={itemVariants} className="mx-auto mb-10 flex items-center justify-center">
-          <div className="avatar-ring relative rounded-full bg-[#0A0A0A]/40 p-1 shadow-[0_0_40px_rgba(0,229,255,0.1)]">
+          <div className="avatar-ring relative rounded-full bg-[#0A0A0A]/40 p-0.5 shadow-[0_0_40px_rgba(0,229,255,0.16)]">
             <motion.img
               key={profile.avatarUrl}
               src={profile.avatarUrl}
               alt={`${profile.name} avatar`}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-              className="relative aspect-square w-full max-w-[240px] sm:max-w-[280px] rounded-full object-cover"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: [0.96, 1.02, 0.96] }}
+              transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' }}
+              className="relative aspect-square w-full max-w-[180px] sm:max-w-[220px] rounded-full object-cover border border-white/10"
             />
           </div>
         </motion.div>

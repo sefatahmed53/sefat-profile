@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Send, Mail, MapPin, Globe, CheckCircle2, User, ArrowUpRight, HelpCircle, Phone } from 'lucide-react';
+import { Send, Mail, MapPin, Globe, CheckCircle2, User, ArrowUpRight, HelpCircle, Phone, MessageCircle } from 'lucide-react';
 import { ProfileInfo, ContactSubmission } from '../types';
 
 interface ContactFormProps {
@@ -135,6 +135,26 @@ export default function ContactForm({ profile, onContactSubmit }: ContactFormPro
               >
                 <span>sites.google.com/diu.edu.bd/sefat1</span>
                 <ArrowUpRight className="h-3 w-3" />
+              </a>
+            </div>
+
+            {/* WhatsApp Quick Connect */}
+            <div className="mt-4 rounded-xl bg-green-500/10 border border-green-500/20 p-5 space-y-3">
+              <h4 className="text-[11px] font-mono font-bold uppercase tracking-wider text-green-500 flex items-center gap-1">
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span>Connect via WhatsApp</span>
+              </h4>
+              <p className="text-[11px] text-zinc-400 leading-relaxed font-sans">
+                Reach out for quick discussions, project inquiries, or business collaborations:
+              </p>
+              <a
+                href="https://wa.me/+8801625732526?text=Hi%20Sefat%2C%20I%20would%20like%20to%20connect%20with%20you%20regarding%20a%20project"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center space-x-1.5 rounded-lg bg-green-900/30 border border-green-500/40 px-3.5 py-2.5 text-xs text-green-400 font-mono font-bold hover:border-green-400 hover:text-white transition-all text-center"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span>+88 0162 573 2526</span>
               </a>
             </div>
           </div>
