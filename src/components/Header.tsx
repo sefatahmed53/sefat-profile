@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Settings2, ShieldCheck, MessageCircle, Sun, Moon } from 'lucide-react';
+import { Menu, X, Settings2, ShieldCheck, MessageCircle } from 'lucide-react';
 import { ProfileInfo } from '../types';
 
 interface HeaderProps {
@@ -14,8 +14,6 @@ interface HeaderProps {
   unreadSubmissionsCount: number;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  isDarkMode: boolean;
-  setIsDarkMode: (mode: boolean) => void;
 }
 
 export default function Header({ 
@@ -23,9 +21,7 @@ export default function Header({
   onAdminClick, 
   unreadSubmissionsCount, 
   activeTab, 
-  setActiveTab,
-  isDarkMode,
-  setIsDarkMode
+  setActiveTab 
 }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -102,16 +98,6 @@ export default function Header({
 
         {/* Action Button: CMS / Admin Portal */}
         <div className="hidden lg:flex items-center space-x-4">
-          <motion.button
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="relative flex items-center space-x-2 rounded-xl border border-zinc-805 bg-zinc-900/40 px-4 py-2.5 text-xs font-semibold text-zinc-300 transition-all hover:bg-zinc-850 hover:text-white cursor-pointer shadow-md"
-            title="Toggle reading mode"
-          >
-            {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            <span>{isDarkMode ? "☀️ Read" : "🌙 Dark"}</span>
-          </motion.button>
           <motion.a
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.95 }}

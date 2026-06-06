@@ -132,9 +132,9 @@ export default function Hero({ profile, onTabChange }: HeroProps) {
               key={profile.avatarUrl}
               src={profile.avatarUrl}
               alt={`${profile.name} avatar`}
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: [0.96, 1.02, 0.96] }}
-              transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
               className="relative aspect-square w-full max-w-[180px] sm:max-w-[220px] rounded-full object-cover border border-white/10"
             />
           </div>
