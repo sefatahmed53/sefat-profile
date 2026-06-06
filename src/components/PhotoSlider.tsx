@@ -15,14 +15,17 @@ const DEFAULT_SLIDES = [
 export default function PhotoSlider({ slides }: PhotoSliderProps) {
   const slideImages = slides && slides.length > 0 ? slides : DEFAULT_SLIDES;
   const [slideIndex, setSlideIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setSlideIndex((prev) => (prev + 1) % slideImages.length);
-    }, 6000);
+      if (!isPaused) {
+        setSlideIndex((prev) => (prev + 1) % slideImages.length);
+      }
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [slideImages.length]);
+  }, [slideImages.length, isPaused]);
 
   const handlePrevSlide = () => {
     setSlideIndex((prev) => (prev - 1 + slideImages.length) % slideImages.length);
@@ -34,12 +37,23 @@ export default function PhotoSlider({ slides }: PhotoSliderProps) {
 
   return (
     <motion.section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="relative overflow-hidden rounded-[32px] border border-zinc-800 bg-[#080a0f]/80 shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
-        <img
-          src={slideImages[slideIndex]}
-          alt={`Profile photo ${slideIndex + 1}`}
-          className="h-[420px] w-full object-cover transition-all duration-700 ease-out"
-        />
+      <div
+        className="relative overflow-hidden rounded-[32px] border border-zinc-800 bg-[#080a0f]/80 shadow-[0_30px_80px_rgba(0,0,0,0.35)]"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        <div className="relative h-[420px] w-full">
+          {slideImages.map((src, index) => (
+            <img
+              key={`${src}-${index}`}
+              src={src}
+              alt={`Profile photo ${index + 1}`}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${index === slideIndex ? 'opacity-100' : 'opacity-0'}`}
+              aria-hidden={index !== slideIndex}
+              style={{ willChange: 'opacity' }}
+            />
+          ))}
+        </div>
         <div className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between px-4 pb-4">
           <button
             type="button"

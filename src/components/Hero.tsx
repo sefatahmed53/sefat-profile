@@ -138,7 +138,7 @@ export default function Hero({ profile, onTabChange }: HeroProps) {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-                className="w-full max-w-[720px] h-[240px] sm:h-[360px] md:h-[420px] rounded-2xl border-2 border-[#00E5FF]/10 object-cover shadow-[0_25px_60px_rgba(0,229,255,0.12)] transition-shadow duration-500"
+                className="mx-auto aspect-square w-full max-w-[360px] sm:max-w-[420px] rounded-full border-2 border-[#00E5FF]/10 object-cover shadow-[0_25px_60px_rgba(0,229,255,0.12)] transition-shadow duration-500"
               />
             );
           })()}
@@ -192,7 +192,7 @@ export default function Hero({ profile, onTabChange }: HeroProps) {
                 alt={`slide-${i}`}
                 initial={{ opacity: 0, scale: 1.02 }}
                 animate={i === slideIdx ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
+                transition={{ duration: 1.1, ease: 'easeInOut' }}
                 className="absolute inset-0 w-full h-[220px] sm:h-[320px] md:h-[420px] object-cover"
                 style={{ willChange: 'opacity, transform' }}
               />
