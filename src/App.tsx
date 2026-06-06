@@ -5,7 +5,24 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShieldCheck, MessageSquare, ArrowUpRight, Github, Linkedin, HelpCircle } from 'lucide-react';
+import {
+  ShieldCheck,
+  ArrowUpRight,
+  TrendingUp,
+  Award,
+  Clock,
+  Briefcase,
+  Layers,
+  Sparkles,
+  ArrowUp,
+  UserCheck,
+  Search,
+  SlidersHorizontal,
+  ChevronUp
+} from 'lucide-react';
+import { doc, onSnapshot, collection } from 'firebase/firestore';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth, db } from './firebase';
 
 // Types & Data
 import {
@@ -22,10 +39,29 @@ import {
   INITIAL_PROJECTS,
   INITIAL_EXPERIENCE,
   INITIAL_CERTIFICATIONS,
-  INITIAL_REVIEWS,
-  loadData,
-  saveData
+  INITIAL_REVIEWS
 } from './data';
+
+import {
+  seedInitialFirestoreData,
+  fetchProfileInfo,
+  updateProfileInfo,
+  fetchProjects,
+  saveProject,
+  deleteProject,
+  fetchCertifications,
+  saveCertification,
+  deleteCertification,
+  fetchReviews,
+  saveReview,
+  deleteReview,
+  fetchSubmissions,
+  saveContactSubmission,
+  markSubmissionRead,
+  deleteSubmission,
+  fetchSocialLinks,
+  SocialLinks
+} from './firebaseUtils';
 
 // Subcomponents
 import Header from './components/Header';
@@ -39,83 +75,314 @@ import ContactForm from './components/ContactForm';
 import CMSDialog from './components/CMSDialog';
 
 export default function App() {
-  // Core Portfolio and CMS Local persistence States
-  const [profile, setProfile] = useState<ProfileInfo>(() => loadData('sefat_profile', INITIAL_PROFILE));
-  const [projects, setProjects] = useState<Project[]>(() => loadData('sefat_projects', INITIAL_PROJECTS));
-  const [experience, setExperience] = useState<FreelanceExperience[]>(() => loadData('sefat_experience', INITIAL_EXPERIENCE));
-  const [certifications, setCertifications] = useState<Certification[]>(() => loadData('sefat_certifications', INITIAL_CERTIFICATIONS));
-  const [reviews, setReviews] = useState<ClientReview[]>(() => loadData('sefat_reviews', INITIAL_REVIEWS));
-  const [submissions, setSubmissions] = useState<ContactSubmission[]>(() => loadData('sefat_submissions', []));
+  // Core Portfolio States
+  const [profile, setProfile] = useState<ProfileInfo>(INITIAL_PROFILE);
+  const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
+  const [experience, setExperience] = useState<FreelanceExperience[]>(INITIAL_EXPERIENCE);
+  const [certifications, setCertifications] = useState<Certification[]>(INITIAL_CERTIFICATIONS);
+  const [reviews, setReviews] = useState<ClientReview[]>(INITIAL_REVIEWS);
+  const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({
+    facebook: 'https://facebook.com',
+    linkedin: 'https://linkedin.com',
+    github: 'https://github.com',
+    email: 'sefatahmed53@gmail.com',
+    googleSite: 'sites.google.com/diu.edu.bd/sefat1'
+  });
 
+  // Auth & UI control states
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isCMSOpen, setIsCMSOpen] = useState(false);
+  const [appLoading, setAppLoading] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  
+  // Custom Cursor mouse coordinates
+  const [coords, setCoords] = useState({ x: -100, y: -100 });
+  const [hoveredEl, setHoveredEl] = useState(false);
 
-  // Auto synchronization triggers
+  // Search & filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  // --- MOUSE TRACKING ---
   useEffect(() => {
-    saveData('sefat_profile', profile);
-  }, [profile]);
+    const handleMouseMove = (e: MouseEvent) => {
+      setCoords({ x: e.clientX, y: e.clientY });
+    };
 
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'A' || 
+        target.tagName === 'BUTTON' || 
+        target.closest('button') || 
+        target.closest('a')
+      ) {
+        setHoveredEl(true);
+      } else {
+        setHoveredEl(false);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseover', handleMouseOver);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseover', handleMouseOver);
+    };
+  }, []);
+
+  // --- SCROLL WATCHER ---
   useEffect(() => {
-    saveData('sefat_projects', projects);
-  }, [projects]);
+    const handleScroll = () => {
+      if (window.scrollY > 400) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
+  // --- FIREBASE DATA SYNC ---
   useEffect(() => {
-    saveData('sefat_experience', experience);
-  }, [experience]);
+    const bootstrapPublicData = async () => {
+      try {
+        setAppLoading(true);
+        
+        const currentProfile = await fetchProfileInfo();
+        setProfile(currentProfile);
 
+        const currentProj = await fetchProjects();
+        if (currentProj.length > 0) setProjects(currentProj);
+
+        const currentCerts = await fetchCertifications();
+        if (currentCerts.length > 0) setCertifications(currentCerts);
+
+        const currentReviews = await fetchReviews(false); // Guest gets approved-only
+        if (currentReviews.length > 0) setReviews(currentReviews);
+
+        const initialSocials = await fetchSocialLinks();
+        setSocialLinks(initialSocials);
+
+      } catch (e) {
+        console.error('Firebase offline or public loading failed. Falling back to local data.', e);
+      } finally {
+        setTimeout(() => {
+          setAppLoading(false);
+        }, 1200);
+      }
+    };
+
+    bootstrapPublicData();
+
+    // Setup active real-time firestore listeners with proper error boundaries
+    const unsubProjects = onSnapshot(collection(db, 'projects'), (snap) => {
+      if (!snap.empty) {
+        const loaded: Project[] = [];
+        snap.forEach(docSnap => loaded.push(docSnap.data() as Project));
+        setProjects(loaded);
+      }
+    }, (error) => {
+      console.warn('Projects snapshot listener permission error or offline:', error);
+    });
+
+    const unsubCerts = onSnapshot(collection(db, 'certificates'), (snap) => {
+      if (!snap.empty) {
+        const loaded: Certification[] = [];
+        snap.forEach(docSnap => loaded.push(docSnap.data() as Certification));
+        setCertifications(loaded);
+      }
+    }, (error) => {
+      console.warn('Certifications snapshot listener permission error or offline:', error);
+    });
+
+    const unsubReviews = onSnapshot(collection(db, 'reviews'), (snap) => {
+      if (!snap.empty) {
+        const loaded: ClientReview[] = [];
+        snap.forEach(docSnap => loaded.push(docSnap.data() as ClientReview));
+        setReviews(loaded);
+      }
+    }, (error) => {
+      console.warn('Reviews snapshot listener permission error or offline:', error);
+    });
+
+    const unsubProfile = onSnapshot(doc(db, 'settings', 'profile'), (snap) => {
+      if (snap.exists()) {
+        setProfile(snap.data() as ProfileInfo);
+      }
+    }, (error) => {
+      console.warn('Profile settings snapshot listener permission error or offline:', error);
+    });
+
+    return () => {
+      unsubProjects();
+      unsubCerts();
+      unsubReviews();
+      unsubProfile();
+    };
+  }, []);
+
+  // --- FIREBASE AUTH WATCHER ---
   useEffect(() => {
-    saveData('sefat_certifications', certifications);
-  }, [certifications]);
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => {
+      unsubscribeAuth();
+    };
+  }, []);
 
+  // --- FIREBASE ADMIN SYNC (ROLE-BASED SEEDING & INBOX) ---
   useEffect(() => {
-    saveData('sefat_reviews', reviews);
-  }, [reviews]);
+    if (!currentUser) {
+      setSubmissions([]);
+      return;
+    }
 
-  useEffect(() => {
-    saveData('sefat_submissions', submissions);
-  }, [submissions]);
+    const emailLow = currentUser.email?.toLowerCase();
+    const isAdminUser = emailLow === 'sefatahmed53@gmail.com';
 
-  // CMS Handlers
-  const handleUpdateProfile = (newProfile: ProfileInfo) => {
+    if (!isAdminUser) {
+      setSubmissions([]);
+      return;
+    }
+
+    // Authenticated admin context
+    const bootstrapAdminData = async () => {
+      try {
+        // Core Write/Seed actions ONLY initiated by verified authenticated owner
+        await seedInitialFirestoreData();
+
+        // Fetch direct inbox entries
+        const initialSubmissions = await fetchSubmissions();
+        setSubmissions(initialSubmissions);
+
+        // Fetch including pending reviews for approval moderation
+        const currentReviews = await fetchReviews(true);
+        if (currentReviews.length > 0) setReviews(currentReviews);
+
+      } catch (e) {
+        console.error('Admin resource bootstrapping failed:', e);
+      }
+    };
+
+    bootstrapAdminData();
+
+    // Setup active real-time firestore listener on private submissions
+    const unsubMessages = onSnapshot(
+      collection(db, 'contactMessages'),
+      (snap) => {
+        const loaded: ContactSubmission[] = [];
+        snap.forEach(docSnap => loaded.push(docSnap.data() as ContactSubmission));
+        setSubmissions(loaded.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      },
+      (error) => {
+        console.warn('Admin messages snapshot listener permission error or offline:', error);
+      }
+    );
+
+    return () => {
+      unsubMessages();
+    };
+  }, [currentUser]);
+
+  // --- DATABASE CMS MUTATION WRAPPERS ---
+  const handleUpdateProfile = async (newProfile: ProfileInfo) => {
     setProfile(newProfile);
+    try {
+      await updateProfileInfo(newProfile);
+    } catch (e) {
+      console.error('Failed to update profile in Firestore:', e);
+    }
   };
 
-  const handleUpdateProjects = (newProjects: Project[]) => {
+  const handleUpdateProjects = async (newProjects: Project[]) => {
+    const currentIds = projects.map(p => p.id);
+    const newIds = newProjects.map(p => p.id);
+
+    // Deleted
+    const deletedIds = currentIds.filter(id => !newIds.includes(id));
+    for (const dId of deletedIds) {
+      await deleteProject(dId).catch(err => console.error(err));
+    }
+
+    // Saved/Updated
+    for (const p of newProjects) {
+      const existing = projects.find(ep => ep.id === p.id);
+      if (!existing || JSON.stringify(existing) !== JSON.stringify(p)) {
+        await saveProject(p).catch(err => console.error(err));
+      }
+    }
     setProjects(newProjects);
   };
 
-  const handleUpdateCertifications = (newCerts: Certification[]) => {
+  const handleUpdateCertifications = async (newCerts: Certification[]) => {
+    const currentIds = certifications.map(c => c.id);
+    const newIds = newCerts.map(c => c.id);
+
+    // Deleted
+    const deletedIds = currentIds.filter(id => !newIds.includes(id));
+    for (const dId of deletedIds) {
+      await deleteCertification(dId).catch(err => console.error(err));
+    }
+
+    // Saved/Updated
+    for (const c of newCerts) {
+      const existing = certifications.find(ec => ec.id === c.id);
+      if (!existing || JSON.stringify(existing) !== JSON.stringify(c)) {
+        await saveCertification(c).catch(err => console.error(err));
+      }
+    }
     setCertifications(newCerts);
   };
 
-  const handleUpdateReviews = (newReviews: ClientReview[]) => {
+  const handleUpdateReviews = async (newReviews: ClientReview[]) => {
+    const currentIds = reviews.map(r => r.id);
+    const newIds = newReviews.map(r => r.id);
+
+    // Deleted
+    const deletedIds = currentIds.filter(id => !newIds.includes(id));
+    for (const dId of deletedIds) {
+      await deleteReview(dId).catch(err => console.error(err));
+    }
+
+    // Saved/Updated
+    for (const r of newReviews) {
+      const existing = reviews.find(er => er.id === r.id);
+      if (!existing || JSON.stringify(existing) !== JSON.stringify(r)) {
+        await saveReview(r).catch(err => console.error(err));
+      }
+    }
     setReviews(newReviews);
   };
 
-  const handleUpdateSubmissions = (newSubmissions: ContactSubmission[]) => {
-    setSubmissions(newSubmissions);
+  const handleUpdateSubmissions = async (newSubs: ContactSubmission[]) => {
+    const currentIds = submissions.map(s => s.id);
+    const newIds = newSubs.map(s => s.id);
+
+    // Deleted
+    const deletedIds = currentIds.filter(id => !newIds.includes(id));
+    for (const dId of deletedIds) {
+      await deleteSubmission(dId).catch(err => console.error(err));
+    }
+
+    // Modified (e.g. marked read)
+    for (const s of newSubs) {
+      const existing = submissions.find(es => es.id === s.id);
+      if (existing && existing.isRead !== s.isRead) {
+        await markSubmissionRead(s.id, s.isRead).catch(err => console.error(err));
+      }
+    }
+    setSubmissions(newSubs);
   };
 
-  const handleResetToDefaults = () => {
-    localStorage.removeItem('sefat_profile');
-    localStorage.removeItem('sefat_projects');
-    localStorage.removeItem('sefat_experience');
-    localStorage.removeItem('sefat_certifications');
-    localStorage.removeItem('sefat_reviews');
-    localStorage.removeItem('sefat_submissions');
-
-    setProfile(INITIAL_PROFILE);
-    setProjects(INITIAL_PROJECTS);
-    setExperience(INITIAL_EXPERIENCE);
-    setCertifications(INITIAL_CERTIFICATIONS);
-    setReviews(INITIAL_REVIEWS);
-    setSubmissions([]);
-    alert('Dynamic portfolio data successfully reset to clean default developer templates!');
-  };
-
-  // Submission Receivers from Client Components
-  const handleContactSubmit = (data: Omit<ContactSubmission, 'id' | 'date' | 'isRead'>) => {
+  // --- REVIEWS & SUBMISSIONS RECEIVED FROM PUBLIC CLIENT ---
+  const handleContactSubmit = async (data: Omit<ContactSubmission, 'id' | 'date' | 'isRead'>) => {
+    const timestampId = `sub-${Date.now()}`;
     const newSubmission: ContactSubmission = {
-      id: `sub-${Date.now()}`,
+      id: timestampId,
       senderName: data.senderName,
       senderEmail: data.senderEmail,
       subject: data.subject,
@@ -129,12 +396,17 @@ export default function App() {
       }),
       isRead: false
     };
-    setSubmissions([newSubmission, ...submissions]);
+
+    // Save to Firestore with clean fallback
+    await saveContactSubmission(newSubmission);
+    // Update local state is automatically bound via snapshot, but doing it manually in case of quick updates:
+    setSubmissions(prev => [newSubmission, ...prev]);
   };
 
-  const handleReviewSubmit = (reviewData: Omit<ClientReview, 'id' | 'date' | 'approved'>) => {
+  const handleReviewSubmit = async (reviewData: Omit<ClientReview, 'id' | 'date' | 'approved'>) => {
+    const timestampId = `rev-${Date.now()}`;
     const newReview: ClientReview = {
-      id: `rev-${Date.now()}`,
+      id: timestampId,
       clientName: reviewData.clientName,
       clientRole: reviewData.clientRole,
       clientCompany: reviewData.clientCompany,
@@ -145,32 +417,209 @@ export default function App() {
         day: 'numeric',
         year: 'numeric'
       }),
-      approved: true // Automatically display, can manage/moderate inside CMS
+      approved: false // Moderation pipeline - Pending until Admin manual approval
     };
-    setReviews([newReview, ...reviews]);
+
+    await saveReview(newReview);
+    // Notify client review was queued for moderation
+    alert('Thank you for your valuable feedback! Your review has been submitted to Md. Sakir Ahmed Sefat for approval moderation.');
   };
 
   const unreadCount = submissions.filter(s => !s.isRead).length;
 
+  // Filter projects by category and text search query
+  const filteredProjects = projects.filter(p => {
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          p.description.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          p.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    if (selectedCategory === 'All') return matchesSearch;
+    return matchesSearch && p.category === selectedCategory;
+  });
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-black antialiased relative">
-      {/* Top Header Navigation */}
+    <div className="min-h-screen bg-[#0A0A0A] text-zinc-100 flex flex-col font-sans selection:bg-[#00E5FF] selection:text-black antialiased relative overflow-x-hidden">
+      
+      {/* 1. MOUSE FOLLOW GLOW EFFECT (DESKTOP ONLY) */}
+      <div 
+        className="hidden md:block fixed pointer-events-none z-30 transition-all duration-75 ease-out rounded-full -translate-x-1/2 -translate-y-1/2"
+        style={{
+          left: `${coords.x}px`,
+          top: `${coords.y}px`,
+          width: hoveredEl ? '400px' : '280px',
+          height: hoveredEl ? '400px' : '280px',
+          background: hoveredEl 
+            ? 'radial-gradient(circle, rgba(0,229,255,0.06) 0%, rgba(124,77,255,0.02) 50%, transparent 100%)' 
+            : 'radial-gradient(circle, rgba(0,229,255,0.035) 0%, rgba(124,77,255,0.01) 45%, transparent 100%)'
+        }}
+      />
+
+      {/* CUSTOM CURSOR PIN */}
+      <div 
+        className={`hidden md:block custom-cursor ${hoveredEl ? 'w-10 h-10 border-[#7C4DFF] bg-[#00E5FF]/10' : ''}`}
+        style={{ left: `${coords.x}px`, top: `${coords.y}px` }}
+      />
+      <div 
+        className="hidden md:block custom-cursor-dot"
+        style={{ left: `${coords.x}px`, top: `${coords.y}px` }}
+      />
+
+      {/* 2. LOADING SCREEN PRELOADER */}
+      <AnimatePresence>
+        {appLoading && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+            className="fixed inset-0 bg-[#0A0A0A] z-50 flex flex-col items-center justify-center"
+            id="app-preloader"
+          >
+            <div className="relative flex flex-col items-center">
+              {/* Dynamic shining tech blobs */}
+              <div className="absolute w-44 h-44 rounded-full bg-[#00E5FF]/10 blur-2xl animate-pulse" />
+              <div className="absolute w-32 h-32 rounded-full bg-[#7C4DFF]/10 blur-xl animate-bounce" />
+
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+                className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[#00E5FF] border-b border-l border-[#7C4DFF]/10"
+              />
+              <motion.h2 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-white text-lg font-display font-bold tracking-widest mt-6 uppercase"
+              >
+                Md. Sakir Ahmed Sefat
+              </motion.h2>
+              <p className="text-[10px] font-mono text-[#00E5FF] tracking-wider uppercase mt-1 animate-pulse">
+                Technology, Finance Automation & Corporate ERP
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 3. FLOATING BACKGROUND GRADIENT BLOBS */}
+      <div className="absolute top-[10%] left-[-10%] w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full bg-[#00E5FF]/5 blur-[120px] pointer-events-none -z-10 animate-float" />
+      <div className="absolute top-[45%] right-[-10%] w-[320px] sm:w-[450px] h-[320px] sm:h-[450px] rounded-full bg-[#7C4DFF]/4 blur-[100px] pointer-events-none -z-10 animate-float-reverse" />
+      <div className="absolute bottom-[15%] left-[20%] w-[400px] h-[400px] rounded-full bg-[#00E5FF]/3 blur-[140px] pointer-events-none -z-10 animate-float" />
+
+      {/* 4. ANIMATED STATIC STARFIELD / PARTICLE BACKFLIP */}
+      <div className="absolute inset-0 bg-[radial-gradient(#111827_1px,transparent_1px)] [background-size:16px_16px] opacity-15 pointer-events-none -z-15" />
+
+      {/* App Header Navigation */}
       <Header
         profile={profile}
         onAdminClick={() => setIsCMSOpen(true)}
         unreadSubmissionsCount={unreadCount}
       />
 
-      {/* Main Sections */}
+      {/* Main Container Layout */}
       <main className="flex-grow">
+        
+        {/* Dynamic Hero with high premium layout */}
         <Hero profile={profile} />
 
-        <Projects projects={projects} />
+        {/* 5. DYNAMIC STATS COCOUNTERS BANNER SECTION */}
+        <section className="bg-[#111827]/30 border-y border-zinc-850 py-10 px-4">
+          <div className="mx-auto max-w-7xl grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { label: 'Completed Projects', value: projects.length, icon: Layers, desc: 'Digital products built', color: 'text-[#00E5FF]' },
+              { label: 'Professional Certifications', value: certifications.length, icon: Award, desc: 'Illustrator, AI & Analytics', color: 'text-[#7C4DFF]' },
+              { label: 'Freelance & Club Contracts', value: experience.length + 3, icon: Briefcase, desc: 'Successful corporate assets', color: 'text-[#00E5FF]' },
+              { label: 'Verified Client Reviews', value: reviews.filter(r=>r.approved).length, icon: UserCheck, desc: 'Approved testimonials', color: 'text-[#7C4DFF]' }
+            ].map((stat, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="flex items-start space-x-3.5 p-3"
+              >
+                <div className={`p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 ${stat.color}`}>
+                  <stat.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-3xl font-display font-extrabold text-white tracking-tight flex items-center">
+                    <span>{stat.value}</span>
+                    <span className="text-[#00E5FF] text-xl ml-0.5">+</span>
+                  </h4>
+                  <p className="text-xs font-semibold text-zinc-300 mt-0.5">{stat.label}</p>
+                  <p className="text-[10px] font-mono text-zinc-500">{stat.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* 6. ADVANCED PROJECT FILTERING & SEARCH INTERFACES */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-20" id="projects">
+          <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-800 pb-5 mb-8 gap-4">
+            <div>
+              <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#00E5FF] flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                <span>Showcased Ventures</span>
+              </span>
+              <h2 className="text-3xl font-display font-extrabold text-white tracking-tight mt-1">
+                Dynamic Portfolios
+              </h2>
+            </div>
+
+            {/* Filter and search utilities */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Query projects or tags..."
+                  className="bg-[#111827] border border-zinc-800 rounded-lg pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-all w-full sm:w-52"
+                />
+              </div>
+
+              {/* Category pill selects */}
+              <div className="flex items-center space-x-1.5 overflow-x-auto py-1">
+                {['All', 'UI/UX', 'Web Design', 'Brand Identity'].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-3 py-1.5 rounded-md text-[11px] font-mono font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                      selectedCategory === cat 
+                        ? 'bg-[#00E5FF] text-black font-bold' 
+                        : 'bg-[#111827] text-zinc-400 hover:text-white border border-zinc-800'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Render projects with filtering bounds applied */}
+          <Projects projects={filteredProjects} />
+          {filteredProjects.length === 0 && (
+            <div className="text-center py-20 bg-[#111827]/40 border border-zinc-800 rounded-xl">
+              <p className="text-sm font-semibold text-zinc-400">No projects match your current filter parameters or query.</p>
+              <button 
+                onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+                className="mt-3 text-xs text-[#00E5FF] hover:underline cursor-pointer"
+              >
+                Clear all active search filters
+              </button>
+            </div>
+          )}
+        </div>
 
         <Experience experience={experience} />
 
         <Certifications certifications={certifications} />
 
+        {/* Reviews Testimonials & Submit Section */}
         <ClientReviews
           reviews={reviews}
           onSubmitReview={handleReviewSubmit}
@@ -188,37 +637,55 @@ export default function App() {
         />
       </main>
 
-      {/* Corporate design footer */}
-      <footer className="bg-zinc-950 border-t border-zinc-900 py-12 px-4 text-center no-print" id="app-footer">
+      {/* Footer Details */}
+      <footer className="bg-[#0A0A0A] border-t border-zinc-900 py-12 px-4 text-center no-print" id="app-footer">
         <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-6 px-4">
           <div className="text-left">
-            <h4 className="text-sm font-bold text-white tracking-tight">Sefat Ahmed Portfolio Workspace</h4>
-            <p className="text-xs text-zinc-500 mt-1">Academic credentials & freelance operations</p>
+            <h4 className="text-sm font-bold text-white tracking-tight">Md. Sakir Ahmed Sefat</h4>
+            <p className="text-xs text-zinc-500 mt-1">Technology integration & freelance business automation pipelines</p>
           </div>
 
           <div className="flex items-center space-x-6 text-xs text-zinc-500">
-            <a href="https://github.com" className="hover:text-white transition-colors">GitHub</a>
-            <a href="https://linkedin.com" className="hover:text-white transition-colors">LinkedIn</a>
-            <a href={`https://${profile.googleSiteUrl}`} target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-0.5">
-              <span>Google Site Directory</span>
+            <a href={socialLinks.github} target="_blank" rel="noreferrer" className="hover:text-[#00E5FF] transition-colors">GitHub</a>
+            <a href={socialLinks.facebook} target="_blank" rel="noreferrer" className="hover:text-[#00E5FF] transition-colors">Facebook</a>
+            <a href={socialLinks.linkedin} target="_blank" rel="noreferrer" className="hover:text-[#00E5FF] transition-colors">LinkedIn</a>
+            <a href={`https://${socialLinks.googleSite}`} target="_blank" rel="noreferrer" className="hover:text-[#00E5FF] transition-colors flex items-center gap-0.5">
+              <span>Google Site</span>
               <ArrowUpRight className="h-3 w-3" />
             </a>
           </div>
         </div>
 
         <div className="mx-auto max-w-7xl mt-8 pt-8 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between text-[11px] text-zinc-600 gap-4 px-4">
-          <p>© {new Date().getFullYear()} Sefat Ahmed. Crafted with pride.</p>
+          <p>© {new Date().getFullYear()} Md. Sakir Ahmed Sefat. All rights reserved.</p>
           <button
             onClick={() => setIsCMSOpen(true)}
-            className="inline-flex items-center space-x-1 hover:text-indigo-400 font-mono font-medium transition-colors cursor-pointer"
+            className="inline-flex items-center space-x-1 hover:text-[#00E5FF] font-mono font-medium transition-colors cursor-pointer border border-[#00E5FF]/20 px-3 py-1.5 rounded-lg bg-[#111827]"
           >
-            <ShieldCheck className="h-4.5 w-4.5 text-indigo-500" />
+            <ShieldCheck className="h-4 w-4 text-[#00E5FF]" />
             <span>Launch CMS Security Portal</span>
           </button>
         </div>
       </footer>
 
-      {/* Content Management System Modal dialog overlay */}
+      {/* 7. BACK TO TOP CORNER BUTTON */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="fixed bottom-6 right-6 z-40 p-3 rounded-full bg-[#111827] hover:bg-[#00E5FF] text-[#00E5FF] hover:text-black hover:scale-105 border border-zinc-805 transition-all cursor-pointer shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+            title="Scroll to Top"
+            id="back-to-top-button"
+          >
+            <ChevronUp className="h-4.5 w-4.5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Dynamic Content Management System Modal Dialog */}
       <AnimatePresence>
         {isCMSOpen && (
           <CMSDialog
@@ -234,7 +701,20 @@ export default function App() {
             onUpdateReviews={handleUpdateReviews}
             submissions={submissions}
             onUpdateSubmissions={handleUpdateSubmissions}
-            onResetToDefaults={handleResetToDefaults}
+            currentUser={currentUser}
+            onResetToDefaults={async () => {
+              // Direct Firebase seed recovery
+              await seedInitialFirestoreData();
+              const freshProfile = await fetchProfileInfo();
+              setProfile(freshProfile);
+              const freshProj = await fetchProjects();
+              setProjects(freshProj);
+              const freshCerts = await fetchCertifications();
+              setCertifications(freshCerts);
+              const freshReviews = await fetchReviews(true);
+              setReviews(freshReviews);
+              alert('Firestore seed database refreshed successfully back to clean templates!');
+            }}
           />
         )}
       </AnimatePresence>

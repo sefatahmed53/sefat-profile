@@ -1,0 +1,149 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with admin designation",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The unique user ID" },
+        "email": { "type": "string", "description": "User email address" },
+        "isAdmin": { "type": "boolean", "description": "Whether user is admin" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "email", "isAdmin"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Portfolio project item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "role": { "type": "string" },
+        "year": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "tags": { "type": "array" },
+        "link": { "type": "string" },
+        "isFeatured": { "type": "boolean" },
+        "longDescription": { "type": "string" }
+      },
+      "required": ["id", "title", "description", "category", "role", "year", "imageUrl", "tags", "isFeatured"]
+    },
+    "Certificate": {
+      "title": "Certificate",
+      "description": "A certification achieved by Sakir",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "issuer": { "type": "string" },
+        "issueDate": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "verificationUrl": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "title", "issuer", "issueDate", "imageUrl", "verificationUrl"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Client review or feedback",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientRole": { "type": "string" },
+        "clientCompany": { "type": "string" },
+        "rating": { "type": "number" },
+        "reviewText": { "type": "string" },
+        "date": { "type": "string" },
+        "approved": { "type": "boolean" }
+      },
+      "required": ["id", "clientName", "clientRole", "clientCompany", "rating", "reviewText", "date", "approved"]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Contact submissions from the portfolio site",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderEmail": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "date": { "type": "string" },
+        "isRead": { "type": "boolean" }
+      },
+      "required": ["id", "senderName", "senderEmail", "subject", "message", "date", "isRead"]
+    },
+    "SocialLink": {
+      "title": "SocialLink",
+      "description": "Social links displayed in contact section and footer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "platform": { "type": "string" },
+        "url": { "type": "string" }
+      },
+      "required": ["id", "platform", "url"]
+    },
+    "Resume": {
+      "title": "Resume",
+      "description": "Resume settings download URL",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "pdfUrl": { "type": "string" },
+        "version": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "pdfUrl"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "General settings of the portfolio",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "key": { "type": "string" },
+        "value": { "type": "object" }
+      },
+      "required": ["id", "key", "value"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of user document tracking admins"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "List of portfolio projects displayed on the main site"
+    },
+    "/certificates/{certificateId}": {
+      "schema": "Certificate",
+      "description": "List of certifications displayed on the main site"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Feedback and client testimonials submitted through the site"
+    },
+    "/contactMessages/{messageId}": {
+      "schema": "ContactMessage",
+      "description": "Inquiries sent by visitors from the contact form"
+    },
+    "/socialLinks/{socialLinkId}": {
+      "schema": "SocialLink",
+      "description": "Configurable URLs for Sefat's social platform handles"
+    },
+    "/resume/{resumeId}": {
+      "schema": "Resume",
+      "description": "Document holding the resume download URL"
+    },
+    "/settings/{settingId}": {
+      "schema": "Setting",
+      "description": "Miscellaneous system settings and configurations"
+    }
+  }
+}

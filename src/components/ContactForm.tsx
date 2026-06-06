@@ -45,67 +45,67 @@ export default function ContactForm({ profile, onContactSubmit }: ContactFormPro
 
     setTimeout(() => {
       setSubmitted(false);
-    }, 4000);
+    }, 4500);
   };
 
   return (
-    <section className="bg-zinc-950 py-24 px-4 sm:px-6 lg:px-8 border-t border-zinc-900" id="contact">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-zinc-900 bg-transparent" id="contact">
       <div className="mx-auto max-w-6xl">
         {/* Header Title */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-2 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-mono font-medium text-indigo-400 mb-4 border border-indigo-500/20">
-            <Mail className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center space-x-2 rounded-full bg-[#00E5FF]/5 px-3 py-1.5 text-xs font-mono font-bold text-[#00E5FF] mb-4 border border-[#00E5FF]/20">
+            <Mail className="h-3.5 w-3.5 animate-pulse" />
             <span>Co-Operations & Project Leads</span>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl" id="contact-section-title">
+          <h2 className="text-3xl font-display font-extrabold tracking-tight text-white sm:text-4xl" id="contact-section-title">
             Get In Touch
           </h2>
-          <p className="mt-4 max-w-xl mx-auto text-zinc-400 text-sm">
-            Interested in digital branding, custom graphics, or user interface consultations? Fill out the contact form below or reach Sefat on his Google site directory.
+          <p className="mt-4 max-w-xl mx-auto text-zinc-400 text-xs sm:text-sm">
+            Interested in fintech automations, financial databases, or custom user interfaces? Fill out the inquiry form or reach out directly.
           </p>
         </div>
 
         {/* Action Content Grid */}
         <div className="grid gap-12 lg:grid-cols-5 items-stretch">
           {/* Sefat Profile Card Left */}
-          <div className="lg:col-span-2 flex flex-col justify-between rounded-2xl border border-zinc-850 bg-zinc-900/30 p-8">
+          <div className="lg:col-span-2 flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-[#111827]/30 backdrop-blur-md p-8">
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
-                <div className="relative h-14 w-14 rounded-full overflow-hidden bg-zinc-900 border border-indigo-500/30">
+                <div className="relative h-14 w-14 rounded-full overflow-hidden bg-[#0A0A0A] border border-[#00E5FF]/30 shadow-[0_0_12px_rgba(0,229,255,0.2)]">
                   <img
                     src={profile.avatarUrl}
                     alt={profile.name}
                     referrerPolicy="no-referrer"
                     className="h-full w-full object-cover"
                   />
-                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-indigo-500 ring-2 ring-zinc-950" />
+                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-[#00E5FF] ring-2 ring-[#0A0A0A]" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white tracking-tight">{profile.name}</h3>
-                  <p className="text-xs font-mono text-zinc-500">{profile.title}</p>
+                  <h3 className="text-sm font-display font-bold text-white tracking-tight">{profile.name}</h3>
+                  <p className="text-[11px] font-mono font-semibold text-[#00E5FF]/80">{profile.title}</p>
                 </div>
               </div>
 
-              <div className="space-y-4 pt-4 border-t border-zinc-850 text-xs text-zinc-400">
-                <div className="flex items-center space-x-3">
-                  <Mail className="h-4 w-4 text-indigo-400" />
-                  <a href={`mailto:${profile.email}`} className="hover:text-white transition-colors">
+              <div className="space-y-4 pt-4 border-t border-zinc-850 text-xs text-zinc-405 font-mono">
+                <div className="flex items-center space-x-3.5">
+                  <Mail className="h-4.5 w-4.5 text-[#00E5FF]" />
+                  <a href={`mailto:${profile.email}`} className="text-zinc-300 hover:text-white transition-colors">
                     {profile.email}
                   </a>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <MapPin className="h-4 w-4 text-indigo-400" />
-                  <span>Dhaka, Bangladesh</span>
+                <div className="flex items-center space-x-3.5">
+                  <MapPin className="h-4.5 w-4.5 text-[#7C4DFF]" />
+                  <span className="text-zinc-300">Dhaka, Bangladesh</span>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <Globe className="h-4 w-4 text-indigo-400" />
+                <div className="flex items-center space-x-3.5">
+                  <Globe className="h-4.5 w-4.5 text-[#00E5FF]" />
                   <a
                     href={`https://${profile.googleSiteUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-white transition-colors flex items-center gap-1 font-semibold"
+                    className="hover:text-white text-zinc-300 transition-colors flex items-center gap-1 font-bold"
                   >
-                    <span>Corporate Google Site</span>
+                    <span>Portfolio Site Link</span>
                     <ArrowUpRight className="h-3 w-3 text-zinc-500" />
                   </a>
                 </div>
@@ -113,19 +113,19 @@ export default function ContactForm({ profile, onContactSubmit }: ContactFormPro
             </div>
 
             {/* Google Site directory highlighting */}
-            <div className="mt-8 rounded-xl bg-indigo-400/5 border border-indigo-500/10 p-5 space-y-3">
-              <h4 className="text-[11px] font-mono font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1">
+            <div className="mt-8 rounded-xl bg-[#00E5FF]/5 border border-[#00E5FF]/10 p-5 space-y-3">
+              <h4 className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#00E5FF] flex items-center gap-1">
                 <HelpCircle className="h-3.5 w-3.5" />
-                <span>Verify Google Directory</span>
+                <span>Google Site Portfolio</span>
               </h4>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
-                You can browse further course materials, academic portfolios, and certification files directly on Sefat Ahmed's Google site:
+              <p className="text-[11px] text-zinc-400 leading-relaxed font-sans">
+                Browse academic credentials, extra certifications, and university assets directly on Sefat's public directory:
               </p>
               <a
                 href={`https://${profile.googleSiteUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center space-x-1 rounded-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-xs text-zinc-300 font-semibold hover:border-zinc-700 hover:text-white transition-all text-center"
+                className="inline-flex w-full items-center justify-center space-x-1.5 rounded-lg bg-[#0A0A0A] border border-zinc-800 px-3.5 py-2.5 text-xs text-zinc-305 font-mono font-bold hover:border-[#00E5FF]/40 hover:text-white transition-all text-center"
               >
                 <span>sites.google.com/diu.edu.bd/sefat1</span>
                 <ArrowUpRight className="h-3 w-3" />
@@ -135,84 +135,84 @@ export default function ContactForm({ profile, onContactSubmit }: ContactFormPro
 
           {/* Contact Input Form Right */}
           <div className="lg:col-span-3">
-            <div className="rounded-2xl border border-zinc-850 bg-zinc-900/10 p-6 sm:p-8" id="contact-input-panel">
+            <div className="rounded-2xl border border-zinc-800 bg-[#111827]/40 backdrop-blur-md p-6 sm:p-8" id="contact-input-panel">
               {submitted ? (
                 <div className="text-center py-16" id="contact-success-state">
-                  <CheckCircle2 className="h-12 w-12 text-indigo-400 mx-auto mb-4 animate-bounce" />
-                  <h3 className="text-lg font-bold text-white mb-2">Message Saved Offline!</h3>
-                  <p className="text-sm text-zinc-400 max-w-sm mx-auto leading-relaxed">
-                    Thank you! Your inquiries are fully stored in the portfolio CMS inbox. Sefat can view your message dynamically using the CMS admin tab!
+                  <CheckCircle2 className="h-12 w-12 text-[#00E5FF] mx-auto mb-4 animate-bounce" />
+                  <h3 className="text-lg font-display font-extrabold text-white mb-2">Message Sent Successfully!</h3>
+                  <p className="text-xs text-zinc-405 font-mono max-w-sm mx-auto leading-relaxed">
+                    Sefat has received your corporate transmission. He generally responds within 12 business hours.
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4" id="contact-main-form">
+                <form onSubmit={handleSubmit} className="space-y-5" id="contact-mailing-form">
                   {error && (
-                    <div className="rounded-lg bg-red-950/40 border border-red-900/40 p-3 text-xs text-red-500">
+                    <div className="rounded-xl bg-red-950/40 border border-red-900/40 p-3.5 text-xs text-red-400 font-mono">
                       {error}
                     </div>
                   )}
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-4.5 sm:grid-cols-2">
                     <div>
-                      <label className="block text-[11px] font-mono text-zinc-400 mb-1.5 font-semibold">Your Full Name *</label>
+                      <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Your Full Name *</label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. David Miller"
+                        placeholder="e.g. John Doe"
                         value={senderName}
                         onChange={(e) => setSenderName(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
-                        id="contact-input-name"
+                        className="w-full rounded-xl border border-zinc-800 bg-[#0A0A0A] p-3 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
+                        id="contact-input-sendername"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-zinc-400 mb-1.5 font-semibold">Email Account *</label>
+                      <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Corporate Email Address *</label>
                       <input
                         type="email"
                         required
-                        placeholder="e.g. david@agency.com"
+                        placeholder="e.g. manager@firm.com"
                         value={senderEmail}
                         onChange={(e) => setSenderEmail(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
-                        id="contact-input-email"
+                        className="w-full rounded-xl border border-zinc-800 bg-[#0A0A0A] p-3 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
+                        id="contact-input-senderemail"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-mono text-zinc-400 mb-1.5 font-semibold">Subject / Objective</label>
+                    <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Message Subject</label>
                     <input
                       type="text"
-                      placeholder="e.g. UI Redesign Consultation"
+                      placeholder="e.g. Consultancy / Portfolio Design Proposal"
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
+                      className="w-full rounded-xl border border-zinc-800 bg-[#0A0A0A] p-3 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
                       id="contact-input-subject"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-mono text-zinc-400 mb-1.5 font-semibold">What is Sefat building for you? *</label>
+                    <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Inquiry Description *</label>
                     <textarea
                       required
                       rows={5}
-                      placeholder="Detail your operational timelines, platform target (iOS/Android/Web), approximate budgets, or request file audits..."
+                      placeholder="Explicitly describe your business challenge, timeline specifications, or interface parameters..."
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 resize-none"
-                      id="contact-input-message"
+                      className="w-full rounded-xl border border-zinc-800 bg-[#0A0A0A] p-3 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-colors resize-none"
+                      id="contact-input-description"
                     />
                   </div>
 
-                  <div className="pt-2 flex justify-end">
+                  <div className="flex justify-end pt-2">
                     <button
                       type="submit"
-                      className="group flex items-center justify-center space-x-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-6 py-3.5 text-xs font-bold text-white transition-colors w-full sm:w-auto cursor-pointer"
-                      id="contact-submit-btn"
+                      className="inline-flex w-full sm:w-auto items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-[#00E5FF] to-[#7C4DFF] px-6 py-3.5 text-xs font-mono uppercase tracking-wider font-bold text-black transition-all hover:shadow-[0_0_15px_rgba(0,229,255,0.3)] cursor-pointer"
+                      id="contact-form-btn"
                     >
-                      <span>Send Dynamic Message</span>
-                      <Send className="h-3.5 w-3.5 text-white transition-transform group-hover:translate-y-0.5 group-hover:-translate-y-0.5" />
+                      <span>Transmit Mailing Inquiry</span>
+                      <Send className="h-4 w-4" />
                     </button>
                   </div>
                 </form>

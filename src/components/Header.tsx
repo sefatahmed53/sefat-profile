@@ -36,7 +36,7 @@ export default function Header({ profile, onAdminClick, unreadSubmissionsCount }
   };
 
   return (
-    <header id="header-nav" className="sticky top-0 z-40 w-full border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
+    <header id="header-nav" className="sticky top-0 z-40 w-full border-b border-zinc-800 bg-[#0A0A0A]/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Name */}
         <div className="flex items-center space-x-2">
@@ -47,10 +47,10 @@ export default function Header({ profile, onAdminClick, unreadSubmissionsCount }
             className="flex items-center space-x-2 text-lg font-bold tracking-tight text-white"
             id="brand-logo"
           >
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#00E5FF] to-[#7C4DFF] bg-clip-text text-transparent filter drop-shadow-[0_0_8px_rgba(0,229,255,0.3)]">
               {profile.name}
             </span>
-            <span className="text-xs font-mono font-normal text-zinc-500 border border-zinc-800 px-1.5 py-0.5 rounded-md">
+            <span className="text-xs font-mono font-normal text-[#00E5FF] border border-[#00E5FF]/20 px-1.5 py-0.5 rounded-md bg-[#00E5FF]/5">
               Portfolio
             </span>
           </motion.a>
@@ -63,7 +63,7 @@ export default function Header({ profile, onAdminClick, unreadSubmissionsCount }
               key={item.href}
               href={item.href}
               onClick={(e) => handleScroll(e, item.href)}
-              className="text-sm font-medium text-zinc-400 transition-colors hover:text-white"
+              className="text-sm font-medium text-zinc-400 transition-all hover:text-[#00E5FF] hover:translate-y-[-1px]"
               id={`nav-item-${item.label.toLowerCase()}`}
             >
               {item.label}
@@ -76,14 +76,14 @@ export default function Header({ profile, onAdminClick, unreadSubmissionsCount }
           <motion.button
             whileActive={{ scale: 0.95 }}
             onClick={onAdminClick}
-            className="relative flex items-center space-x-2 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-xs font-medium text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white hover:border-zinc-700"
+            className="relative flex items-center space-x-2 rounded-lg border border-[#00E5FF]/20 bg-[#111827] px-4 py-2 text-xs font-medium text-[#00E5FF] transition-all hover:bg-[#00E5FF]/10 hover:text-white hover:border-[#00E5FF]/50"
             id="desktop-admin-cms-btn"
             title="Open Content Management System (CMS)"
           >
-            <Settings2 className="h-4 w-4 text-indigo-400" />
+            <Settings2 className="h-4 w-4 text-[#00E5FF]" />
             <span>CMS Admin Portal</span>
             {unreadSubmissionsCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-500 text-[9px] font-bold text-white animate-pulse">
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#7C4DFF] text-[9px] font-bold text-white animate-pulse">
                 {unreadSubmissionsCount}
               </span>
             )}
@@ -94,12 +94,12 @@ export default function Header({ profile, onAdminClick, unreadSubmissionsCount }
         <div className="flex md:hidden items-center space-x-3">
           <button
             onClick={onAdminClick}
-            className="relative p-2 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400"
+            className="relative p-2 rounded-lg border border-[#00E5FF]/20 bg-[#111827] text-[#00E5FF]"
             id="mobile-admin-cms-shortcut"
           >
-            <Settings2 className="h-4 w-4 text-indigo-400" />
+            <Settings2 className="h-4 w-4 text-[#00E5FF]" />
             {unreadSubmissionsCount > 0 && (
-              <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-indigo-500" />
+              <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-[#7C4DFF]" />
             )}
           </button>
           <button

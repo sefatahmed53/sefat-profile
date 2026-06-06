@@ -62,20 +62,20 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
   };
 
   return (
-    <section className="bg-zinc-950 py-24 px-4 sm:px-6 lg:px-8 border-t border-zinc-900" id="reviews">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-zinc-900 bg-transparent" id="reviews">
       <div className="mx-auto max-w-6xl">
         {/* Layout grid */}
         <div className="grid gap-12 lg:grid-cols-3">
           {/* Static info header column */}
           <div className="lg:col-span-1">
-            <div className="inline-flex items-center space-x-2 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-mono font-medium text-indigo-400 mb-4 border border-indigo-500/20">
+            <div className="inline-flex items-center space-x-2 rounded-full bg-[#00E5FF]/5 px-3 py-1.5 text-xs font-mono font-bold text-[#00E5FF] mb-4 border border-[#00E5FF]/20">
               <MessageSquare className="h-3.5 w-3.5" />
               <span>Testimonials</span>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl" id="reviews-section-title">
+            <h2 className="text-3xl font-display font-extrabold tracking-tight text-white sm:text-4xl" id="reviews-section-title">
               Client Feedback
             </h2>
-            <p className="mt-4 text-sm text-zinc-400 leading-relaxed">
+            <p className="mt-4 text-xs sm:text-sm text-zinc-400 leading-relaxed">
               Real opinions, recommendations, and reviews from team leaders and startup founders Sefat integrated with on freelance platforms.
             </p>
 
@@ -86,11 +86,11 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
                   setShowForm(!showForm);
                   setSubmitted(false);
                 }}
-                className="inline-flex items-center space-x-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold hover:border-zinc-700 transition-all hover:bg-zinc-805 text-zinc-300 hover:text-white px-5 py-3 cursor-pointer"
+                className="inline-flex items-center space-x-2 rounded-xl bg-[#111827] border border-zinc-800 text-xs font-mono font-semibold hover:border-[#00E5FF]/40 transition-all hover:bg-zinc-905 text-[#00E5FF] hover:text-white px-5 py-3 cursor-pointer"
                 id="toggle-leave-review"
               >
-                <PenTool className="h-4 w-4 text-indigo-400" />
-                <span>{showForm ? 'Cancel Form' : 'Write Client Recommendation'}</span>
+                <PenTool className="h-4 w-4" />
+                <span>{showForm ? 'Cancel Recommendation' : 'Leave A Recommendation'}</span>
               </button>
             </div>
           </div>
@@ -104,22 +104,22 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
-                  className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8"
+                  className="rounded-2xl border border-zinc-805 bg-[#111827]/40 backdrop-blur-md p-6 sm:p-8"
                   id="client-recommendation-panel"
                 >
                   {submitted ? (
                     <div className="text-center py-12" id="review-success-panel">
-                      <CheckCircle2 className="h-12 w-12 text-indigo-400 mx-auto mb-4 animate-bounce" />
-                      <h3 className="text-lg font-bold text-white mb-2">Thank you Sefat's client!</h3>
-                      <p className="text-sm text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                      <CheckCircle2 className="h-12 w-12 text-[#00E5FF] mx-auto mb-4 animate-bounce" />
+                      <h3 className="text-lg font-display font-extrabold text-white mb-2">Thank you!</h3>
+                      <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed font-mono">
                         Your recommendation was submitted successfully. It will display immediately below after Sefat reviews it in his CMS inbox!
                       </p>
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-5" id="client-review-form">
                       <div>
-                        <h3 className="text-lg font-bold text-white mb-1">Create Recommendation</h3>
-                        <p className="text-xs text-zinc-500 mb-4">Sharing constructive feedback inspires confidence in future freelance prospects.</p>
+                        <h3 className="text-lg font-display font-extrabold text-white mb-1">Create Recommendation</h3>
+                        <p className="text-[11px] text-zinc-500 mb-4">Sharing constructive feedback inspires confidence in future freelance prospects.</p>
                       </div>
 
                       {error && (
@@ -130,27 +130,27 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
 
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <label className="block text-xs font-mono text-zinc-400 mb-2 font-medium">Your Full Name *</label>
+                          <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Your Full Name *</label>
                           <input
                             type="text"
                             required
                             placeholder="e.g. John Doe"
                             value={clientName}
                             onChange={(e) => setClientName(e.target.value)}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm text-white focus:outline-none focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/20"
+                            className="w-full rounded-xl border border-zinc-800 bg-[#0A0A0A] p-3 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
                             id="review-input-name"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-mono text-zinc-400 mb-2 font-medium">Your Role / Job Title *</label>
+                          <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Your Role / Job Title *</label>
                           <input
                             type="text"
                             required
                             placeholder="e.g. Co-Founder / PM"
                             value={clientRole}
                             onChange={(e) => setClientRole(e.target.value)}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm text-white focus:outline-none focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/20px"
+                            className="w-full rounded-xl border border-zinc-800 bg-[#0A0A0A] p-3 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
                             id="review-input-role"
                           />
                         </div>
@@ -158,19 +158,19 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
 
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <label className="block text-xs font-mono text-zinc-400 mb-2 font-medium">Company or Platform</label>
+                          <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Company or Platform</label>
                           <input
                             type="text"
                             placeholder="e.g. Upwork Client"
                             value={clientCompany}
                             onChange={(e) => setClientCompany(e.target.value)}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm text-white focus:outline-none focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/20"
+                            className="w-full rounded-xl border border-zinc-800 bg-[#0A0A0A] p-3 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-colors"
                             id="review-input-company"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-mono text-zinc-400 mb-2 font-medium">Interface Rating *</label>
+                          <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Interface Rating *</label>
                           <div className="flex items-center space-x-1 h-11" id="review-rating-stars">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <button
@@ -179,13 +179,13 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
                                 onClick={() => setRating(star)}
                                 onMouseEnter={() => setHoveredStar(star)}
                                 onMouseLeave={() => setHoveredStar(null)}
-                                className="text-zinc-600 hover:text-amber-400 transition-colors cursor-pointer"
+                                className="text-zinc-600 hover:text-[#00E5FF] transition-colors cursor-pointer"
                                 id={`rating-star-btn-${star}`}
                               >
                                 <Star
-                                  className={`h-6 w-6 ${
+                                  className={`h-5 w-5 ${
                                     (hoveredStar !== null ? star <= hoveredStar : star <= rating)
-                                      ? 'fill-amber-400 text-amber-400'
+                                      ? 'fill-[#00E5FF] text-[#00E5FF]'
                                       : 'text-zinc-700'
                                   }`}
                                 />
@@ -196,14 +196,14 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
                       </div>
 
                       <div>
-                        <label className="block text-xs font-mono text-zinc-400 mb-2 font-medium">Client Recommendation Message *</label>
+                        <label className="block text-xs font-mono text-zinc-400 mb-2 font-semibold">Client Recommendation Message *</label>
                         <textarea
                           required
                           rows={4}
-                          placeholder="Detail Sefat's graphic deliverables, UI expertise, communication quality, or pixel precision..."
+                          placeholder="Detail Sefat's graphic deliverables, UI expertise, communication quality, or business design results..."
                           value={reviewText}
                           onChange={(e) => setReviewText(e.target.value)}
-                          className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 text-sm text-white focus:outline-none focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/20 resize-none"
+                          className="w-full rounded-xl border border-zinc-800 bg-[#0A0A0A] p-3 text-xs text-white focus:outline-none focus:border-[#00E5FF] transition-colors resize-none"
                           id="review-input-message"
                         />
                       </div>
@@ -211,7 +211,7 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
                       <div className="flex justify-end pt-2">
                         <button
                           type="submit"
-                          className="rounded-xl bg-indigo-600 px-6 py-3 text-xs font-semibold text-white hover:bg-indigo-500 transition-colors w-full sm:w-auto cursor-pointer"
+                          className="rounded-xl bg-gradient-to-r from-[#00E5FF] to-[#7C4DFF] px-6 py-3.5 text-xs font-mono font-bold text-black hover:opacity-95 transition-all w-full sm:w-auto cursor-pointer shadow-md"
                           id="submit-client-feedback"
                         >
                           Submit Safe Recommendation
@@ -236,42 +236,42 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: rIdx * 0.1 }}
-                      className="rounded-2xl border border-zinc-800 bg-zinc-900/20 p-6 sm:p-8 hover:border-zinc-855 transition-all"
+                      className="rounded-2xl border border-zinc-800/80 bg-[#111827]/40 backdrop-blur-sm p-6 sm:p-8 hover:border-[#00E5FF]/20 transition-all duration-300"
                       id={`review-item-card-${review.id}`}
                     >
-                      {/* Starts count */}
+                      {/* Stars count */}
                       <div className="flex items-center space-x-1 mb-4" id={`review-stars-${review.id}`}>
                         {Array.from({ length: 5 }).map((_, idx) => (
                           <Star
                             key={idx}
                             className={`h-4 w-4 ${
-                              idx < review.rating ? 'fill-amber-400 text-amber-400' : 'text-zinc-800'
+                              idx < review.rating ? 'fill-[#00E5FF] text-[#00E5FF]' : 'text-zinc-800'
                             }`}
                           />
                         ))}
                       </div>
 
                       {/* Text */}
-                      <p className="text-zinc-350 italic text-sm sm:text-base leading-relaxed mb-6 font-normal">
+                      <p className="text-zinc-300 italic text-xs sm:text-sm leading-relaxed mb-6 font-medium">
                         "{review.reviewText}"
                       </p>
 
                       {/* Client card badge */}
-                      <div className="flex items-center justify-between border-t border-zinc-850/60 pt-4">
+                      <div className="flex items-center justify-between border-t border-zinc-900 pt-4">
                         <div className="flex items-center space-x-3">
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-bold font-mono">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#7C4DFF]/5 border border-[#7C4DFF]/25 text-[#7C4DFF] text-xs font-mono font-bold">
                             {review.clientName.slice(0, 2).toUpperCase()}
                           </span>
                           <div>
-                            <h4 className="text-xs font-bold text-white tracking-tight">{review.clientName}</h4>
+                            <h4 className="text-xs font-display font-extrabold text-white tracking-tight">{review.clientName}</h4>
                             <p className="text-[10px] text-zinc-500 font-mono">
-                              {review.clientRole} at <span className="text-zinc-400">{review.clientCompany}</span>
+                              {review.clientRole} at <span className="text-[#00E5FF]/85">{review.clientCompany}</span>
                             </p>
                           </div>
                         </div>
 
-                        <div className="text-[10px] font-mono text-zinc-500 flex items-center gap-1">
-                          <UserCheck className="h-3 w-3 text-indigo-400" />
+                        <div className="text-[10px] font-mono text-zinc-550 flex items-center gap-1.5">
+                          <UserCheck className="h-3.5 w-3.5 text-[#00E5FF]" />
                           <span>{review.date}</span>
                         </div>
                       </div>
@@ -280,9 +280,9 @@ export default function ClientReviews({ reviews, onSubmitReview }: ClientReviews
 
                   {/* Empty state reviews check */}
                   {approvedReviews.length === 0 && (
-                    <div className="text-center py-16 border border-dashed border-zinc-850 rounded-2xl p-6">
-                      <MessageSquare className="h-8 w-8 text-zinc-700 mx-auto mb-4 animate-pulse" />
-                      <p className="text-sm text-zinc-500">Wait for client recommendations or click Write Review above to add your own!</p>
+                    <div className="text-center py-16 border border-dashed border-zinc-800 rounded-2xl p-6">
+                      <MessageSquare className="h-8 w-8 text-zinc-700 mx-auto mb-3 animate-pulse" />
+                      <p className="text-xs text-zinc-500 font-medium">No client recommendations published yet.</p>
                     </div>
                   )}
                 </motion.div>

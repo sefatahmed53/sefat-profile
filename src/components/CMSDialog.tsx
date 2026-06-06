@@ -20,8 +20,14 @@ import {
   RotateCcw,
   CheckSquare,
   AlertTriangle,
-  ExternalLink
+  ExternalLink,
+  ShieldAlert,
+  LogOut,
+  Lock,
+  Compass
 } from 'lucide-react';
+import { User as FirebaseUser, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 import {
   ProfileInfo,
   Project,
@@ -45,6 +51,7 @@ interface CMSDialogProps {
   submissions: ContactSubmission[];
   onUpdateSubmissions: (subs: ContactSubmission[]) => void;
   onResetToDefaults: () => void;
+  currentUser: FirebaseUser | null;
 }
 
 export default function CMSDialog({
@@ -60,7 +67,8 @@ export default function CMSDialog({
   onUpdateReviews,
   submissions,
   onUpdateSubmissions,
-  onResetToDefaults
+  onResetToDefaults,
+  currentUser
 }: CMSDialogProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'projects' | 'certifications' | 'reviews' | 'inbox'>('certifications');
 
@@ -93,7 +101,109 @@ export default function CMSDialog({
   const [profGoogleSite, setProfGoogleSite] = useState(profile.googleSiteUrl);
   const [profAvailability, setProfAvailability] = useState(profile.availability);
 
+  const isAdminUser = currentUser && (
+    currentUser.email?.toLowerCase() === 'sefatahmed53@gmail.com'
+  );
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+    } catch (e: any) {
+      alert(`Sign in failed: ${e.message || e}`);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (e: any) {
+      alert(`Sign out failed: ${e.message || e}`);
+    }
+  };
+
   if (!isOpen) return null;
+
+  // --- SECURITY GATE BLOCK ---
+  if (!isAdminUser) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/98 backdrop-blur-xl">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="relative max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center shadow-2xl space-y-6"
+        >
+          {/* Close button */}
+          <button 
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 h-8 w-8 rounded-full bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white cursor-pointer hover:border-zinc-700 transition-all"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          {/* Secure Lock Icon Header */}
+          <div className="mx-auto h-16 w-16 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+            {currentUser ? <ShieldAlert className="h-8 w-8 animate-pulse" /> : <Lock className="h-7 w-7" />}
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-xl font-display font-extrabold text-white tracking-tight">
+              {currentUser ? 'Access Unauthorized' : 'Secure Admin Portal'}
+            </h3>
+            <p className="text-xs text-zinc-400 leading-relaxed max-w-sm mx-auto">
+              {currentUser 
+                ? `You are authenticated as ${currentUser.email}, which is not registered as the administrator.`
+                : 'Authorized transaction terminal for portfolio profile synchronization, projects, reviews governance, and email inbox records.'}
+            </p>
+          </div>
+
+          {/* Sign In Options */}
+          <div className="space-y-3 pt-2">
+            {!currentUser ? (
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="w-full flex items-center justify-center space-x-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-3 text-xs font-semibold text-white transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] cursor-pointer"
+                id="sign-in-google-btn"
+              >
+                <Compass className="h-4.5 w-4.5" />
+                <span>Authorize with Google Account</span>
+              </button>
+            ) : (
+              <div className="space-y-2.5">
+                <button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  className="w-full flex items-center justify-center space-x-2 rounded-xl bg-zinc-850 hover:bg-zinc-800 px-4 py-2.5 text-xs font-semibold text-white transition-all border border-zinc-800 cursor-pointer"
+                >
+                  <span>Switch Administrator Account</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="w-full flex items-center justify-center space-x-2 rounded-xl border border-red-500/20 bg-red-950/20 text-red-400 hover:bg-red-950/40 px-4 py-2.5 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Disconnect Credentials</span>
+                </button>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full text-zinc-500 hover:text-zinc-300 text-[11px] font-mono cursor-pointer transition-all pt-1 block"
+            >
+              Return back to public portfolio
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   // Certification CRUD Handlers
   const handleStartAddCert = () => {

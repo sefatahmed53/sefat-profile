@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Award, ExternalLink, Calendar, BadgeCheck, Eye, ShieldCheck } from 'lucide-react';
+import { Award, ExternalLink, Calendar, BadgeCheck, Eye, X } from 'lucide-react';
 import { Certification } from '../types';
 
 interface CertificationsProps {
@@ -13,23 +13,22 @@ interface CertificationsProps {
 }
 
 export default function Certifications({ certifications }: CertificationsProps) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedCert, setSelectedCert] = useState<Certification | null>(null);
 
   return (
-    <section className="bg-zinc-950 py-24 px-4 sm:px-6 lg:px-8 border-t border-zinc-900" id="certifications">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 border-t border-zinc-900 bg-transparent" id="certifications">
       <div className="mx-auto max-w-7xl">
         {/* Title Group */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-2 rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-mono font-medium text-indigo-400 mb-4 border border-indigo-500/20">
+          <div className="inline-flex items-center space-x-2 rounded-full bg-[#7C4DFF]/5 px-3 py-1.5 text-xs font-mono font-bold text-[#7C4DFF] mb-4 border border-[#7C4DFF]/20">
             <Award className="h-3.5 w-3.5" />
             <span>Professional Credentials</span>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl" id="certifications-section-title">
+          <h2 className="text-3xl font-display font-extrabold tracking-tight text-white sm:text-4xl" id="certifications-section-title">
             Certifications & Training
           </h2>
-          <p className="mt-4 max-w-xl mx-auto text-zinc-400 text-sm">
-            Dynamically updated credentials verifying professional competency in UI research, graphic delivery pipelines, and accessibility.
+          <p className="mt-4 max-w-xl mx-auto text-zinc-400 text-xs sm:text-sm">
+            Dynamically updated credentials verifying professional competency in corporate systems, fintech designs, and marketing analytics portfolios.
           </p>
         </div>
 
@@ -42,36 +41,34 @@ export default function Certifications({ certifications }: CertificationsProps) 
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: index * 0.1 }}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              className="group relative flex flex-col md:flex-row overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 gap-5 hover:border-zinc-700/80 hover:bg-zinc-900 transition-all"
+              className="group relative flex flex-col md:flex-row overflow-hidden rounded-2xl border border-zinc-850 bg-[#111827]/40 backdrop-blur-sm p-5 gap-5 hover:border-[#00E5FF]/30 hover:bg-[#111827]/75 transition-all duration-300"
               id={`cert-layout-card-${cert.id}`}
             >
               {/* Left Side: Thumbnail Preview */}
-              <div className="relative w-full md:w-44 h-32 rounded-xl overflow-hidden bg-zinc-950 border border-zinc-850 flex-shrink-0 flex items-center justify-center group/img">
+              <div className="relative w-full md:w-44 h-32 rounded-xl overflow-hidden bg-[#0A0A0A] border border-zinc-800 flex-shrink-0 flex items-center justify-center group/img">
                 <img
                   src={cert.imageUrl}
                   alt={cert.title}
                   referrerPolicy="no-referrer"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover/img:scale-105"
                 />
                 {/* Blur Hover Action */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center space-x-2.5">
                   <button
                     onClick={() => setSelectedCert(cert)}
-                    className="p-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer"
+                    className="p-2.5 rounded-lg bg-[#00E5FF] text-black hover:scale-105 transition-transform cursor-pointer"
                     title="View Credential Image"
                   >
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-4.5 w-4.5 font-bold" />
                   </button>
                   <a
                     href={cert.verificationUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:bg-zinc-800"
+                    className="p-2.5 rounded-lg bg-[#111827] border border-zinc-800 text-zinc-300 hover:text-white hover:border-[#00E5FF]/40 cursor-pointer"
                     title="Verify Credential Link"
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className="h-4.5 w-4.5" />
                   </a>
                 </div>
               </div>
@@ -80,38 +77,38 @@ export default function Certifications({ certifications }: CertificationsProps) 
               <div className="flex flex-col justify-between flex-1">
                 <div className="space-y-2">
                   <div className="flex items-start justify-between">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500">
-                      <Calendar className="h-3 w-3" />
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-semibold text-zinc-500">
+                      <Calendar className="h-3 w-3 text-[#7C4DFF]" />
                       {cert.issueDate}
                     </span>
-                    <span className="flex items-center text-[10px] font-semibold font-mono text-indigo-400 bg-indigo-400/5 border border-indigo-500/20 px-2 py-0.5 rounded">
+                    <span className="flex items-center text-[9px] font-bold font-mono text-[#00E5FF] bg-[#00E5FF]/5 border border-[#00E5FF]/20 px-2 py-0.5 rounded">
                       <BadgeCheck className="h-3 w-3 mr-1" />
                       Verified
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-white tracking-tight group-hover:text-indigo-400 transition-colors">
+                  <h3 className="text-base font-display font-extrabold text-white tracking-tight group-hover:text-[#00E5FF] transition-colors duration-200">
                     {cert.title}
                   </h3>
-                  <p className="text-xs font-medium text-zinc-400">
+                  <p className="text-xs font-semibold text-zinc-400">
                     Issued by {cert.issuer}
                   </p>
                   {cert.description && (
-                    <p className="text-xs text-zinc-500 leading-relaxed line-clamp-2">
+                    <p className="text-[11px] text-zinc-550 leading-relaxed line-clamp-2">
                       {cert.description}
                     </p>
                   )}
                 </div>
 
                 {/* Verification Action */}
-                <div className="mt-4 pt-3 border-t border-zinc-850/60 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-zinc-500">Cryptographic ID Verified</span>
+                <div className="mt-4 pt-3 border-t border-zinc-800/60 flex items-center justify-between">
+                  <span className="text-[9px] font-mono text-zinc-550 uppercase">Secured ID Hash</span>
                   <a
                     href={cert.verificationUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                    className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-[#00E5FF] hover:text-[#00E5FF]/80 transition-colors"
                   >
-                    <span>Verification Link</span>
+                    <span>Verification Credentials</span>
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
@@ -122,9 +119,9 @@ export default function Certifications({ certifications }: CertificationsProps) 
 
         {/* Empty fallback status */}
         {certifications.length === 0 && (
-          <div className="text-center py-16 border border-dashed border-zinc-850 rounded-2xl">
-            <Award className="h-8 w-8 mx-auto text-zinc-600 mb-4 animate-pulse" />
-            <p className="text-sm text-zinc-500">No professional certifications uploaded.</p>
+          <div className="text-center py-16 border border-dashed border-zinc-805 rounded-2xl">
+            <Award className="h-8 w-8 mx-auto text-zinc-650 mb-3 animate-pulse" />
+            <p className="text-xs text-zinc-500 font-medium">No professional certifications provided yet.</p>
           </div>
         )}
 
@@ -135,52 +132,39 @@ export default function Certifications({ certifications }: CertificationsProps) 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
               id="cert-image-modal"
               onClick={() => setSelectedCert(null)}
             >
               <motion.div
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.95 }}
-                className="relative max-h-[85vh] max-w-3xl overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 p-2 text-center"
+                initial={{ scale: 0.94, y: 15 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.94, y: 15 }}
+                transition={{ type: 'spring', duration: 0.3 }}
+                className="relative max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-zinc-800 bg-[#111827] p-4 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Close badge */}
+                {/* Close Button */}
                 <button
                   onClick={() => setSelectedCert(null)}
-                  className="absolute top-4 right-4 text-white hover:text-zinc-300 h-8 w-8 rounded-full bg-zinc-950/90 border border-zinc-700 flex items-center justify-center cursor-pointer"
+                  className="absolute top-4 right-4 z-10 text-zinc-400 hover:text-white h-8 w-8 rounded-full border border-zinc-800 bg-black flex items-center justify-center cursor-pointer hover:border-[#00E5FF]/60"
                 >
-                  &times;
+                  <X className="h-4 w-4" />
                 </button>
 
-                <div className="p-4 pt-8">
-                  <h3 className="text-lg font-bold text-white mb-1">{selectedCert.title}</h3>
-                  <p className="text-xs text-zinc-400 mb-4">Official credential verification file</p>
-                </div>
-
-                <div className="overflow-auto max-h-[60vh] rounded-lg">
+                {/* Main Preview Container */}
+                <div className="w-full flex items-center justify-center bg-black rounded-lg overflow-hidden border border-zinc-850 p-2 mt-8">
                   <img
                     src={selectedCert.imageUrl}
                     alt={selectedCert.title}
                     referrerPolicy="no-referrer"
-                    className="mx-auto rounded-lg max-h-[55vh] object-contain border border-zinc-800"
+                    className="max-h-[65vh] max-w-full object-contain rounded"
                   />
                 </div>
 
-                <div className="p-4 flex items-center justify-between mt-2 border-t border-zinc-800">
-                  <span className="text-xs font-mono text-zinc-500 flex items-center gap-1">
-                    <ShieldCheck className="h-4 w-4 text-indigo-400" /> Secure Credential Check
-                  </span>
-                  <a
-                    href={selectedCert.verificationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded bg-zinc-950 border border-zinc-800 px-3 py-1.5 text-xs text-indigo-400 hover:bg-zinc-900 transition-colors"
-                  >
-                    <span>Verify at Credential Provider</span>
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
+                <div className="mt-4 px-2">
+                  <h3 className="text-lg font-display font-extrabold text-white tracking-tight">{selectedCert.title}</h3>
+                  <p className="text-xs text-[#00E5FF] font-mono mt-0.5">CredRef ID: {selectedCert.id} — Issued by {selectedCert.issuer}</p>
                 </div>
               </motion.div>
             </motion.div>
