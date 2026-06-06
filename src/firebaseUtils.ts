@@ -86,8 +86,8 @@ export async function seedInitialFirestoreData() {
     const socialSnap = await getDoc(socialRef);
     if (!socialSnap.exists()) {
       await setDoc(socialRef, {
-        facebook: 'https://facebook.com',
-        linkedin: 'https://linkedin.com',
+        facebook: 'https://www.facebook.com/sefatahmed53/',
+        linkedin: 'https://www.linkedin.com/in/sefat-ahmed/',
         github: 'https://github.com',
         email: 'sefatahmed53@gmail.com',
         googleSite: 'sites.google.com/diu.edu.bd/sefat1'
@@ -106,7 +106,10 @@ export async function fetchProfileInfo(): Promise<ProfileInfo> {
   try {
     const profileSnap = await getDoc(doc(db, 'settings', 'profile'));
     if (profileSnap.exists()) {
-      return profileSnap.data() as ProfileInfo;
+      return {
+        ...INITIAL_PROFILE,
+        ...(profileSnap.data() as Partial<ProfileInfo>)
+      } as ProfileInfo;
     }
     return INITIAL_PROFILE;
   } catch (error) {
@@ -313,8 +316,8 @@ export async function fetchSocialLinks(): Promise<SocialLinks> {
       return sSnap.data() as SocialLinks;
     }
     return {
-      facebook: 'https://facebook.com',
-      linkedin: 'https://linkedin.com',
+      facebook: 'https://www.facebook.com/sefatahmed53/',
+      linkedin: 'https://www.linkedin.com/in/sefat-ahmed/',
       github: 'https://github.com',
       email: 'sefatahmed53@gmail.com',
       googleSite: 'sites.google.com/diu.edu.bd/sefat1'

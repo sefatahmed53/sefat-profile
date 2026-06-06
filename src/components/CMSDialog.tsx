@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
   X,
@@ -24,14 +24,13 @@ import {
   ShieldAlert,
   LogOut,
   Lock,
-  Compass,
   Eye,
   EyeOff,
   Mail,
   Key,
   Info
 } from 'lucide-react';
-import { User as FirebaseUser, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword } from 'firebase/auth';
+import { User as FirebaseUser, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebase';
 import {
   ProfileInfo,
@@ -103,6 +102,7 @@ export default function CMSDialog({
   const [profBio, setProfBio] = useState(profile.bio);
   const [profAvatar, setProfAvatar] = useState(profile.avatarUrl);
   const [profEmail, setProfEmail] = useState(profile.email);
+  const [profPhone, setProfPhone] = useState(profile.phone);
   const [profGoogleSite, setProfGoogleSite] = useState(profile.googleSiteUrl);
   const [profAvailability, setProfAvailability] = useState(profile.availability);
 
@@ -111,11 +111,29 @@ export default function CMSDialog({
   const [adminPassword, setAdminPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>('sign-in');
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const isAdminUser = currentUser && (
-    currentUser.email?.toLowerCase() === 'sefatahmed53@gmail.com'
+    currentUser.email?.toLowerCase() === 'sefatahmed53@gmail.com' && currentUser.emailVerified
   );
+
+  const handleShowLogin = () => {
+    setVerificationEmail(null);
+    setAuthMode('sign-in');
+    setLoginError(null);
+    setAdminPassword('');
+  };
+
+  useEffect(() => {
+    if (currentUser && !currentUser.emailVerified) {
+      const email = currentUser.email || '';
+      sendEmailVerification(currentUser).catch((err) => console.warn('Verification email failed:', err));
+      signOut(auth).catch((err) => console.warn('Sign out after unverified auth failed:', err));
+      setVerificationEmail(email);
+    }
+  }, [currentUser]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,22 +161,41 @@ export default function CMSDialog({
 
     setIsSubmitting(true);
     try {
-      await signInWithEmailAndPassword(auth, adminEmail.trim(), adminPassword);
+      const credential = authMode === 'sign-in'
+        ? await signInWithEmailAndPassword(auth, adminEmail.trim(), adminPassword)
+        : await createUserWithEmailAndPassword(auth, adminEmail.trim(), adminPassword);
+
+      const user = credential.user;
+      if (user && !user.emailVerified) {
+        await sendEmailVerification(user);
+        setVerificationEmail(user.email || adminEmail.trim());
+        await signOut(auth);
+        return;
+      }
     } catch (err: any) {
-      console.error('Email sign in error:', err);
+      console.error('Authentication error:', err);
       let errorMsg = 'Failed to authenticate.';
-      if (err.code === 'auth/user-not-found') {
-        errorMsg = 'No user found with this email. Please register it in your Firebase console first.';
-      } else if (err.code === 'auth/wrong-password') {
-        errorMsg = 'Incorrect password. Please try again.';
-      } else if (err.code === 'auth/invalid-email') {
-        errorMsg = 'Invalid email format.';
-      } else if (err.code === 'auth/invalid-credential') {
-        errorMsg = 'Invalid email or password credentials.';
-      } else if (err.code === 'auth/network-request-failed') {
-        errorMsg = 'Network configuration error. Please verify your connection.';
-      } else if (err.message) {
-        errorMsg = err.message;
+      if (authMode === 'sign-in') {
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+          errorMsg = 'Email or password is incorrect';
+        } else if (err.code === 'auth/invalid-email') {
+          errorMsg = 'Invalid email format.';
+        } else if (err.code === 'auth/network-request-failed') {
+          errorMsg = 'Network request failed. Please try again.';
+        }
+      } else {
+        if (err.code === 'auth/email-already-in-use') {
+          errorMsg = 'User already exists. Please sign in';
+        } else if (err.code === 'auth/invalid-email') {
+          errorMsg = 'Invalid email format.';
+        } else if (err.code === 'auth/weak-password') {
+          errorMsg = 'Password must be at least 6 characters long.';
+        } else if (err.code === 'auth/network-request-failed') {
+          errorMsg = 'Network request failed. Please try again.';
+        }
+      }
+      if (!errorMsg || errorMsg === 'Failed to authenticate.') {
+        errorMsg = err.message || 'Email or password is incorrect';
       }
       setLoginError(errorMsg);
     } finally {
@@ -166,25 +203,56 @@ export default function CMSDialog({
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (e: any) {
-      alert(`Sign in failed: ${e.message || e}`);
-    }
-  };
-
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      setVerificationEmail(null);
     } catch (e: any) {
       alert(`Sign out failed: ${e.message || e}`);
     }
   };
 
   if (!isOpen) return null;
+
+  if (verificationEmail) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/98 backdrop-blur-xl overflow-y-auto">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="relative max-w-md w-full bg-zinc-900 border border-zinc-805 rounded-2xl p-6 md:p-8 text-center shadow-2xl space-y-6 my-8"
+        >
+          <button 
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 h-8 w-8 rounded-full bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white cursor-pointer hover:border-zinc-700 transition-all"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          <div className="mx-auto h-14 w-14 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+            <ShieldAlert className="h-6 w-6 animate-pulse" />
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="text-lg font-display font-bold text-white tracking-tight">Email Verification Required</h3>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              We have sent you a verification email to <span className="font-semibold text-white">{verificationEmail}</span>. Please verify it and log in.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleShowLogin}
+            className="w-full rounded-xl bg-[#00E5FF] hover:brightness-110 text-black font-semibold text-xs py-2.5 transition-all shadow-[0_0_15px_rgba(0,229,255,0.25)]"
+          >
+            Login
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   // --- SECURITY GATE BLOCK ---
   if (!isAdminUser) {
@@ -231,9 +299,26 @@ export default function CMSDialog({
               )}
 
               {/* Email Field */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-mono uppercase font-bold tracking-wider text-zinc-500 block">
-                  ADMINISTRATOR EMAIL
+<div className="flex justify-center gap-2 text-[10px] font-mono uppercase tracking-wider">
+                  <button
+                    type="button"
+                    onClick={() => setAuthMode('sign-in')}
+                    className={`rounded-full px-4 py-2 transition-all ${authMode === 'sign-in' ? 'bg-[#00E5FF] text-black' : 'bg-zinc-950 text-zinc-400 hover:bg-zinc-900'}`}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAuthMode('sign-up')}
+                    className={`rounded-full px-4 py-2 transition-all ${authMode === 'sign-up' ? 'bg-[#00E5FF] text-black' : 'bg-zinc-950 text-zinc-400 hover:bg-zinc-900'}`}
+                  >
+                    Sign Up
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-mono uppercase font-bold tracking-wider text-zinc-500 block">
+                    USER EMAIL
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-3 h-4 w-4 text-zinc-500" />
@@ -314,31 +399,20 @@ export default function CMSDialog({
                 className="w-full flex items-center justify-center space-x-2 rounded-xl bg-[#00E5FF] hover:brightness-110 disabled:opacity-50 text-black font-semibold text-xs py-2.5 transition-all shadow-[0_0_15px_rgba(0,229,255,0.25)] cursor-pointer"
               >
                 <Lock className="h-4 w-4" />
-                <span>{isSubmitting ? 'Authenticating...' : 'Sign In as Administrator'}</span>
+                <span>{isSubmitting ? 'Authenticating...' : authMode === 'sign-in' ? 'Sign In' : 'Create Account'}</span>
               </button>
 
-              <div className="relative py-1 flex items-center justify-center">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-zinc-800" />
-                </div>
-                <span className="relative bg-zinc-900 px-3 text-[10px] font-mono text-zinc-500">OR ALTERNATE LINK</span>
+              <div className="text-[11px] text-zinc-400 font-mono mt-3 text-center">
+                {authMode === 'sign-in'
+                  ? 'Use email and password to log in. If you do not have an account, switch to Sign Up.'
+                  : 'Create a new account with email and password. If the email already exists, sign in instead.'}
               </div>
 
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                className="w-full flex items-center justify-center space-x-2 rounded-xl bg-zinc-950 hover:bg-zinc-850 px-4 py-2 text-xs font-medium text-zinc-350 transition-all border border-zinc-850 cursor-pointer"
-              >
-                <Compass className="h-4 w-4" />
-                <span>Authorize with Google Account</span>
-              </button>
-
-              {/* Firebase Helper Tips */}
               <div className="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/10 text-[10px] space-y-1 text-zinc-500 leading-relaxed">
                 <span className="font-bold text-indigo-400 block font-mono">Firebase Console Setup:</span>
                 <p>This links to your <strong className="text-zinc-300">sefat-profile</strong> setup. Ensure you:</p>
                 <ul className="list-disc pl-4 space-y-1 text-zinc-400 font-mono">
-                  <li>Active <strong className="text-[#00E5FF]">Email/Password</strong> sign-in method in Authentication tab.</li>
+                  <li>Activate <strong className="text-[#00E5FF]">Email/Password</strong> sign-in method in Authentication tab.</li>
                   <li>Register user <strong className="text-white">sefatahmed53@gmail.com</strong> with a secure password.</li>
                 </ul>
               </div>
@@ -538,6 +612,7 @@ export default function CMSDialog({
       bio: profBio.trim(),
       avatarUrl: profAvatar.trim(),
       email: profEmail.trim(),
+      phone: profPhone.trim(),
       googleSiteUrl: profGoogleSite.trim(),
       availability: profAvailability as ProfileInfo['availability'],
     });
@@ -568,6 +643,14 @@ export default function CMSDialog({
             >
               <RotateCcw className="h-3.5 w-3.5 text-zinc-500" />
               <span>Reset Portfolio Seeds</span>
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center space-x-1 border border-zinc-800 hover:border-zinc-700 bg-zinc-900 rounded-lg px-3 py-1.5 text-xs font-semibold text-zinc-400 hover:text-white transition-all cursor-pointer"
+              title="Sign out of the admin portal"
+            >
+              <LogOut className="h-3.5 w-3.5 text-zinc-500" />
+              <span>Sign Out</span>
             </button>
             <button
               onClick={onClose}
@@ -1087,6 +1170,19 @@ export default function CMSDialog({
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-[11px] font-mono text-zinc-400 mb-1">Phone Number</label>
+                    <input
+                      type="tel"
+                      required
+                      value={profPhone}
+                      onChange={(e) => setProfPhone(e.target.value)}
+                      className="w-full rounded bg-zinc-950 border border-zinc-800 p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-[11px] font-mono text-zinc-400 mb-1">Google Sites Profile Link (Sefat's Corporate site)</label>
                     <input

@@ -83,8 +83,8 @@ export default function App() {
   const [reviews, setReviews] = useState<ClientReview[]>(INITIAL_REVIEWS);
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
-    facebook: 'https://facebook.com',
-    linkedin: 'https://linkedin.com',
+    facebook: 'https://www.facebook.com/sefatahmed53/',
+    linkedin: 'https://www.linkedin.com/in/sefat-ahmed/',
     github: 'https://github.com',
     email: 'sefatahmed53@gmail.com',
     googleSite: 'sites.google.com/diu.edu.bd/sefat1'

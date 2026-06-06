@@ -112,6 +112,23 @@ export default function Hero({ profile, onTabChange }: HeroProps) {
           </span>
         </motion.div>
 
+        <motion.div variants={itemVariants} className="mx-auto mb-10 flex flex-col items-center gap-4">
+          <img
+            src={profile.avatarUrl}
+            alt={`${profile.name} avatar`}
+            className="h-36 w-36 rounded-full border-4 border-[#00E5FF]/20 object-cover shadow-[0_25px_60px_rgba(0,229,255,0.15)]"
+          />
+          <div className="flex flex-col items-center gap-2 text-sm text-zinc-400 sm:flex-row sm:text-base">
+            <a href={`tel:${profile.phone}`} className="hover:text-[#00E5FF] text-white font-semibold transition-colors">
+              {profile.phone}
+            </a>
+            <span className="hidden sm:inline text-zinc-700">•</span>
+            <a href={`mailto:${profile.email}`} className="hover:text-[#00E5FF] transition-colors">
+              {profile.email}
+            </a>
+          </div>
+        </motion.div>
+
         {/* Display Primary Heading */}
         <motion.h1
           variants={itemVariants}

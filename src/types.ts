@@ -9,6 +9,7 @@ export interface ProfileInfo {
   bio: string;
   avatarUrl: string;
   email: string;
+  phone: string;
   githubUrl: string;
   linkedinUrl: string;
   behanceUrl: string;
