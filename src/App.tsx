@@ -66,6 +66,7 @@ import {
 // Subcomponents
 import Header from './components/Header';
 import Hero from './components/Hero';
+import PhotoSlider from './components/PhotoSlider';
 import Projects from './components/Projects';
 import Experience from './components/Experience';
 import Certifications from './components/Certifications';
@@ -733,6 +734,8 @@ export default function App() {
                     </div>
                   </div>
                 </section>
+
+                <PhotoSlider slides={profile.photoSlides} />
               </>
             )}
 
